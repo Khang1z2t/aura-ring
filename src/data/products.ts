@@ -8,8 +8,10 @@ export const products: Product[] = [
     tagline: 'The featherlight ring for daily recovery tracking.',
     price: 199,
     colors: [
-      { name: 'Rose Titanium', hex: '#d4c5b0', imageIndex: 0 },
-      { name: 'Soft Silver', hex: '#e0e0e8', imageIndex: 0 },
+      { name: 'Rose Titanium', shortName: 'Rose', hex: '#d4c5b0', imageIndex: 0 },
+      { name: 'Soft Silver', shortName: 'Soft', hex: '#e0e0e8', imageIndex: 0 },
+      { name: 'Matte Black', shortName: 'Matte', hex: '#2a2a32', imageIndex: 0 },
+      { name: 'Sage Green', shortName: 'Sage', hex: '#8a9a85', imageIndex: 0 },
     ],
     images: [
       {
@@ -37,8 +39,8 @@ export const products: Product[] = [
     originalPrice: 319,
     badge: 'BESTSELLER',
     colors: [
-      { name: 'Platinum Silver', hex: '#e0e0e8', imageIndex: 0 },
-      { name: 'Matte Black', hex: '#3a3a4a', imageIndex: 0 },
+      { name: 'Platinum Silver', shortName: 'Platinum', hex: '#e0e0e8', imageIndex: 0 },
+      { name: 'Matte Black', shortName: 'Matte', hex: '#3a3a4a', imageIndex: 0 },
     ],
     images: [
       {
@@ -65,8 +67,8 @@ export const products: Product[] = [
     price: 349,
     badge: 'NEW',
     colors: [
-      { name: 'Champagne Titanium', hex: '#c8a96a', imageIndex: 0 },
-      { name: 'Brushed Graphite', hex: '#3a3a4a', imageIndex: 0 },
+      { name: 'Champagne Titanium', shortName: 'Champagne', hex: '#c8a96a', imageIndex: 0 },
+      { name: 'Brushed Graphite', shortName: 'Graphite', hex: '#3a3a4a', imageIndex: 0 },
     ],
     images: [
       {
@@ -92,7 +94,7 @@ export const products: Product[] = [
     tagline: 'The stealth model for hard training and late nights.',
     price: 399,
     badge: 'LIMITED',
-    colors: [{ name: 'Black', hex: '#3a3a4a', imageIndex: 0 }],
+    colors: [{ name: 'Black', shortName: 'Black', hex: '#3a3a4a', imageIndex: 0 }],
     images: [
       {
         src: '/images/rings/aura_ring_obsidian.webp',

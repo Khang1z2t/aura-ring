@@ -67,10 +67,10 @@ export function FloatingActionMenu() {
   }
 
   return (
-    <div className="fixed right-4 bottom-4 z-50 flex items-end gap-3 md:right-6 md:bottom-6">
+    <div className="pointer-events-none fixed right-4 bottom-4 z-50 flex items-end gap-3 md:right-6 md:bottom-6">
       <div
         className={cn(
-          'w-72 max-w-[calc(100vw-5.5rem)] rounded-3xl border border-border bg-card p-4 text-card-foreground shadow-2xl transition-all duration-200 md:w-80 md:max-w-sm',
+          'pointer-events-auto w-72 max-w-[calc(100vw-5.5rem)] rounded-3xl border border-border bg-card p-4 text-card-foreground shadow-2xl transition-all duration-200 md:w-80 md:max-w-sm',
           isChatOpen
             ? 'pointer-events-auto translate-x-0 opacity-100'
             : 'pointer-events-none translate-x-2 opacity-0'
@@ -116,7 +116,7 @@ export function FloatingActionMenu() {
       </div>
 
       <div
-        className="flex flex-col items-end gap-2"
+        className="pointer-events-auto flex flex-col items-end gap-2"
         onMouseEnter={() => {
           if (!canHover || isPinnedOpen) return
           setIsHoverOpen(true)

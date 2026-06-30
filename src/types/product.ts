@@ -7,6 +7,7 @@ export interface ProductImage {
 
 export interface RingColor {
   name: string
+  shortName?: string
   hex: string
   imageIndex: number
 }
