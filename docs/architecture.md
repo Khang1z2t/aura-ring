@@ -71,6 +71,14 @@ helicorp/
 │   │   │   └── [slug]/
 │   │   │       └── page.tsx    # Individual product detail page
 │   │   │
+│   │   ├── cart/
+│   │   │   └── page.tsx        # Full cart page — "use client"
+│   │   │
+│   │   ├── checkout/
+│   │   │   ├── page.tsx        # Demo checkout form — "use client", no real payment
+│   │   │   └── success/
+│   │   │       └── page.tsx    # Order confirmation (simulated)
+│   │   │
 │   │   └── api/
 │   │       ├── chat/
 │   │       │   └── route.ts    # POST — Gemini chatbot handler
@@ -101,12 +109,24 @@ helicorp/
 │   │   │   ├── ProductCard.tsx
 │   │   │   ├── ProductCardSkeleton.tsx
 │   │   │   ├── ProductModal.tsx
-│   │   │   └── ProductBadge.tsx
+│   │   │   ├── ProductBadge.tsx
+│   │   │   ├── ColorPicker.tsx       # swatch row, updates displayed image via imageIndex
+│   │   │   ├── ColorDots.tsx         # compact dots shown on ProductCard (no image swap)
+│   │   │   ├── SizePicker.tsx        # size grid + sizing kit card (see design.md §18)
+│   │   │   ├── ProductFeatures.tsx   # feature card grid ("Why choose")
+│   │   │   └── ProductSpecsTable.tsx # label/value spec rows
 │   │   │
 │   │   ├── cart/
-│   │   │   ├── CartDrawer.tsx
-│   │   │   ├── CartItem.tsx
-│   │   │   └── CartIcon.tsx
+│   │   │   ├── CartDrawer.tsx        # optional quick-view, not primary flow
+│   │   │   ├── CartLineItem.tsx      # used in both /cart page and CartDrawer
+│   │   │   ├── CartSummary.tsx       # subtotal, totalItems, "Proceed to Checkout"
+│   │   │   ├── CartEmptyState.tsx
+│   │   │   └── CartIcon.tsx          # navbar icon with item count badge
+│   │   │
+│   │   ├── checkout/
+│   │   │   ├── CheckoutForm.tsx      # React Hook Form + Zod, demo only
+│   │   │   ├── CheckoutOrderSummary.tsx
+│   │   │   └── CheckoutSuccessState.tsx
 │   │   │
 │   │   ├── chatbot/
 │   │   │   ├── ChatbotWidget.tsx   # Floating button + chat window
@@ -120,7 +140,6 @@ helicorp/
 │   │
 │   ├── data/                   # Static data — source of truth
 │   │   ├── products.ts         # All ring models
-│   │   ├── features.ts         # Feature list with icons/descriptions
 │   │   ├── specs.ts            # Technical specifications table
 │   │   └── testimonials.ts     # Review quotes
 │   │
@@ -170,12 +189,16 @@ helicorp/
 |---|---|---|
 | `/` | RSC Page | Full landing page — all sections |
 | `/products/[slug]` | RSC Page | Product detail (slug from `products.ts`) |
+| `/cart` | Client Page | Full cart page — list items, edit qty, remove |
+| `/checkout` | Client Page | Demo checkout form — NOT real payment, UI only |
 | `/api/chat` | Route Handler | POST — proxies Gemini API, never exposes key |
 | `/api/subscribe` | Route Handler | POST — validates then forwards to webhook |
 
 **Rules:**
 - `/` renders all landing sections as RSC — only leaf interactive components use `"use client"`
 - `[slug]` generates static params via `generateStaticParams()` from `src/data/products.ts`
+- `/cart` and `/checkout` are `"use client"` — fully driven by `useCartStore`, no server data needed
+- `/checkout` never calls a real payment API — on submit, simulate success (setTimeout + toast) and redirect to a `/checkout/success` confirmation state. No real card processing, no PCI concerns.
 - API routes are server-only — import `src/lib/gemini.ts` only inside `app/api/`
 
 ---
@@ -194,13 +217,15 @@ export interface Product {
   badge?: "NEW" | "BESTSELLER" | "LIMITED"
   colors: RingColor[]
   images: ProductImage[]
-  features: string[]        // feature IDs referencing features.ts
+  features: ProductFeature[]
   specs: Record<string, string>
+  sizing: ProductSizing
   inStock: boolean
 }
 
 export interface RingColor {
   name: string
+  shortName: string          // for compact UI (swatch labels)
   hex: string
   imageIndex: number        // which image to show for this color
 }
@@ -212,11 +237,28 @@ export interface ProductImage {
   height: number
 }
 
+export interface ProductFeature {
+  icon: string               // Lucide icon name, e.g. "Moon"
+  title: string
+  description: string
+}
+
+export interface ProductSizing {
+  availableSizes: number[]   // e.g. [6,7,8,9,10,11,12,13] — subset if limited edition
+  sizingKitAvailable: boolean
+}
+
 // src/types/cart.ts
 export interface CartItem {
   productId: string
   quantity: number
   selectedColor: string
+  selectedSize: number       // required — enforced at "Add to Cart" step
+}
+
+export interface CartItemDetailed extends CartItem {
+  product: Product            // hydrated for display in /cart — derived, not stored
+  subtotal: number            // derived: product.price * quantity
 }
 
 // src/types/chat.ts
@@ -249,7 +291,9 @@ export interface TrackingEvent {
 ### Store Responsibilities
 
 ```
-useCartStore        → items[], addItem, removeItem, updateQty, clearCart, totalPrice (getter)
+useCartStore        → items[], addItem, removeItem, updateQty, clearCart, totalPrice (getter), totalItems (getter)
+                       addItem REQUIRES { productId, selectedColor, selectedSize } — reject if selectedSize missing
+                       If same productId + selectedColor + selectedSize already in cart → increment quantity instead of duplicate entry
 useWishlistStore    → ids[], toggle, isWishlisted
 useRecentlyViewedStore → ids[] (max 6), addViewed — FIFO eviction
 useChatStore        → messages[], isOpen, isLoading, sendMessage, clearChat

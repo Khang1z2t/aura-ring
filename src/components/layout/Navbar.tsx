@@ -2,14 +2,14 @@
 
 import Link from 'next/link'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Menu, ShoppingBag, X } from 'lucide-react'
+import { Menu, X } from 'lucide-react'
 import { useState } from 'react'
 
+import { CartIcon } from '@/components/cart/CartIcon'
 import { siteConfig } from '@/config/site'
 
 export function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const cartCount = 0
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md lg:overflow-visible">
@@ -31,18 +31,7 @@ export function Navbar() {
         </nav>
 
         <div className="hidden items-center gap-3 lg:flex">
-          <button
-            type="button"
-            aria-label="Cart placeholder"
-            className="relative inline-flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-card text-card-foreground transition-colors hover:border-primary hover:text-primary"
-          >
-            <ShoppingBag className="h-4 w-4" />
-            {cartCount > 0 ? (
-              <span className="absolute -top-1 -right-1 inline-flex min-h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold leading-none text-primary-foreground">
-                {cartCount}
-              </span>
-            ) : null}
-          </button>
+          <CartIcon />
 
           <Link
             href="/products"
@@ -53,18 +42,7 @@ export function Navbar() {
         </div>
 
         <div className="flex items-center gap-2 lg:hidden">
-          <button
-            type="button"
-            aria-label="Cart placeholder"
-            className="relative inline-flex h-10 w-10 items-center justify-center text-card-foreground transition-colors hover:text-primary"
-          >
-            <ShoppingBag className="h-5 w-5" />
-            {cartCount > 0 ? (
-              <span className="absolute top-1 right-1 inline-flex min-h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[9px] font-semibold leading-none text-primary-foreground">
-                {cartCount}
-              </span>
-            ) : null}
-          </button>
+          <CartIcon mobile />
 
           <button
             type="button"

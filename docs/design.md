@@ -945,3 +945,128 @@ Grid: 3 cards — other products from products.ts excluding current slug
 Card: same ProductCard component used in landing page ProductsSection
 Link: each card → /products/[slug]
 ```
+
+
+## 18. Cart Page — `/cart`
+ 
+Full page, not a drawer. Two-column layout on desktop, stacked on mobile.
+ 
+```
+Layout (lg+): grid-cols-[1fr_360px] gap-8, max-w-6xl mx-auto, py-12
+  Left:  cart items list
+  Right: CartSummary (sticky, top-24)
+ 
+Layout (mobile): single column, CartSummary appears after items list (not sticky)
+```
+ 
+### Page header
+```
+Eyebrow:   "CART" — text-xs, --primary, uppercase tracking-widest
+Headline:  "Your Cart" — Sora 600, text-3xl
+Subtext:   "{totalItems} item(s)" — text-sm, --muted-foreground
+```
+ 
+### CartLineItem (repeated per item)
+```
+Layout:        flex gap-4, py-5, border-b 1px --border
+Image:         80x80px, rounded-lg, bg --surface
+Info column:
+  name:        DM Sans 500, text-base, --foreground
+  color/size:  text-sm, --muted-foreground — "Soft Silver · Size 9"
+  price:       JetBrains Mono, text-sm, --foreground (mt-2)
+Qty stepper:   inline flex, border --border, rounded-md
+  buttons:     − / + , 32x32px, hover bg --card-hover
+  value:       text-sm, mono, center, min-w-8
+Remove:        icon button (Trash2, Lucide), text-sm --muted-foreground,
+               hover text --destructive
+Subtotal:      right-aligned, JetBrains Mono, text-lg, --foreground
+```
+ 
+### CartSummary (right column / sticky)
+```
+background:    var(--card)
+border:        1px solid var(--border)
+radius:        rounded-xl
+padding:       p-6
+ 
+Rows:          flex justify-between, text-sm, py-2
+  "Subtotal"        → mono value
+  "Shipping"        → "Free" (--success color) or calculated
+  divider          → border-t --border, my-3
+  "Total"           → text-lg font-medium, mono value text-xl
+ 
+CTA:           "Proceed to Checkout" — full-width primary button, mt-6
+               disabled if cart is empty
+secondary link: "Continue shopping" — text-sm, --muted-foreground, center, mt-3
+```
+ 
+### CartEmptyState
+```
+Shown when items.length === 0, replaces entire left+right layout
+Centered, py-24
+Icon:          ShoppingBag (Lucide), 48px, --muted-foreground
+Heading:       "Your cart is empty" — Sora 600, text-xl
+Subtext:       "Looks like you haven't added a ring yet." — text-sm, muted
+CTA:           "Shop Rings" → links to /#products, primary button, mt-6
+```
+ 
+---
+ 
+## 19. Checkout Page — `/checkout` (Demo Only, No Real Payment)
+ 
+> **Critical:** this form never sends data to a real payment processor. On submit, simulate a 1.5s loading state, then redirect to `/checkout/success`. No Stripe, no PCI handling — this is a UI demonstration only.
+ 
+### Layout
+```
+grid-cols-[1fr_400px] gap-8, max-w-6xl mx-auto, py-12 (lg+)
+single column, form first then summary on mobile
+```
+ 
+### CheckoutForm sections (React Hook Form + Zod)
+```
+Section 1 — Contact
+  email (required, email format)
+ 
+Section 2 — Shipping Address
+  fullName, address, city, postalCode, country (select)
+ 
+Section 3 — Payment (DEMO UI — clearly fake)
+  cardNumber (formatted input, masked, no real validation needed beyond format)
+  expiryDate, cvc
+  Label small note below: "Demo checkout — no real payment will be processed."
+  text-xs, --muted-foreground, italic
+ 
+Section 4 — Submit
+  "Place Order" — full-width primary button
+  Loading state: spinner + "Processing..." for 1500ms (setTimeout)
+  On complete: router.push('/checkout/success') + clear cart via useCartStore
+```
+ 
+### Field styling
+```
+Label:         DM Sans 500, text-sm, --foreground, mb-1.5
+Input:         shadcn Input component, bg --background, border --border
+               focus: border --primary, shadow-focus
+Error text:    text-xs, --destructive, mt-1
+Section title: Sora 600, text-lg, mb-4, mt-8 (first section mt-0)
+```
+ 
+### CheckoutOrderSummary (right column)
+```
+Same visual style as CartSummary (§19) but read-only —
+  list of items (compact, image 48x48), subtotal, shipping, total
+  No qty editing here — "Edit cart" link back to /cart
+```
+ 
+### CheckoutSuccessState — `/checkout/success`
+```
+Centered, py-24, max-w-md mx-auto, text-center
+Icon:          CheckCircle2 (Lucide), 56px, --success, in circle bg --success/10
+Heading:       "Order Confirmed" — Sora 600, text-2xl, mt-6
+Subtext:       "This is a demo order — no payment was charged.
+                 A confirmation would normally be sent to your email."
+               text-sm, --muted-foreground, mt-2
+Order ref:     mono, text-sm, --muted-foreground, mt-4 — "Order #DEMO-{random}"
+CTA:           "Continue Shopping" → "/" — primary button, mt-8
+```
+---
