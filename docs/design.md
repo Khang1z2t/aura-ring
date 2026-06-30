@@ -23,114 +23,121 @@ Read `architecture.md` for folder structure, routing, and component rules.
 ### 2.1 Raw Palette (never use these directly in components — use semantic tokens below)
 
 ```
---raw-void:        #0D0D12   // near-black with purple undertone
---raw-surface:     #15151E   // dark surface
---raw-card:        #1E1E2C   // card background dark
---raw-border-dark: #2A2A38   // subtle dark border
---raw-ember:       #FF6B35   // primary accent — warm orange-red
---raw-amber:       #FFB347   // secondary accent — warm amber/gold
---raw-gold:        #C9A84C   // ring gold tier color
---raw-platinum:    #E0E0E8   // ring silver/platinum tier color
---raw-ivory:       #F0EEE8   // primary text dark mode
---raw-dusk:        #8B8A9F   // muted text dark mode
---raw-warm-white:  #F9F8F5   // light mode background
---raw-deep:        #1A1A28   // light mode primary text
---raw-muted-light: #6B6B7E   // light mode muted text
---raw-border-lgt:  #E2E0DA   // light mode border
+/* ── Dark mode foundation ── */
+--raw-void:        #0D0D12;   /* near-black with purple undertone */
+--raw-surface:     #15151E;   /* dark section surface */
+--raw-card:        #1E1E2C;   /* dark card background */
+--raw-border-dark: #2A2A38;   /* subtle dark border */
+
+/* ── Brand accents ── */
+--raw-ember:       #FF6B35;   /* primary accent — warm orange-red */
+--raw-amber:       #FFB347;   /* secondary accent — warm amber */
+
+/* ── Product tier colors ── */
+--raw-gold:        #C8A96A;   /* champagne titanium for Elite */
+--raw-platinum:    #E0E0E8;   /* platinum/silver for Pro */
+--raw-obsidian:    #3A3A4A;   /* dark titanium for Obsidian */
+--raw-air:         #D4C5B0;   /* rose/champagne titanium for Air */
+
+/* ── Dark mode text ── */
+--raw-ivory:       #F0EEE8;   /* primary text on dark */
+--raw-dusk:        #8B8A9F;   /* muted text on dark */
+
+/* ── Light mode foundation — warm premium, not pure white ── */
+--raw-warm-white:  #F3EFE8;   /* light page background */
+--raw-warm-surface:#FAF7F1;   /* light section surface */
+--raw-warm-card:   #FFFDF8;   /* light card background */
+--raw-deep:        #211D1A;   /* warm dark text */
+--raw-muted-light: #746B62;   /* muted text on light */
+--raw-border-lgt:  #DDD4C8;   /* soft warm border */
+--raw-border-strong-lgt: #C9BDAF;
 ```
 
-### 2.2 Semantic Tokens — Dark Mode (default)
-
-Map these into shadcn CSS vars in `globals.css`.
-
-```css
+### 2.2 Semantic Tokens — Dark Mode
+```
 /* ── Backgrounds ── */
---background:          #0D0D12   /* page canvas */
---surface:             #15151E   /* section backgrounds */
---card:                #1E1E2C   /* product cards, panels */
---card-hover:          #252535   /* card on hover */
---popover:             #1E1E2C
+--background:          #0D0D12;   /* page canvas */
+--surface:             #15151E;   /* section backgrounds */
+--card:                #1E1E2C;   /* product cards, panels */
+--card-hover:          #252535;   /* card on hover */
+--popover:             #1E1E2C;
 
 /* ── Borders ── */
---border:              #2A2A38   /* default hairline */
---border-strong:       #3A3A4E   /* emphasized border */
---input:               #2A2A38
+--border:              #2A2A38;   /* default hairline */
+--border-strong:       #3A3A4E;   /* emphasized border */
+--input:               #2A2A38;
 
 /* ── Text ── */
---foreground:          #F0EEE8   /* primary text */
---muted-foreground:    #8B8A9F   /* secondary / muted text */
---card-foreground:     #F0EEE8
+--foreground:          #F0EEE8;   /* primary text */
+--muted-foreground:    #8B8A9F;   /* secondary / muted text */
+--card-foreground:     #F0EEE8;
 
-/* ── Accent 1 — Ember (primary CTA, highlights, glow) ── */
---primary:             #FF6B35
---primary-foreground:  #FFFFFF
---primary-hover:       #FF8555   /* lighter on hover */
---primary-muted:       rgba(255, 107, 53, 0.12)   /* subtle bg tint */
---primary-glow:        rgba(255, 107, 53, 0.25)   /* box-shadow glow */
+/* ── Accent 1 — Ember ── */
+--primary:             #FF6B35;
+--primary-foreground:  #FFFFFF;
+--primary-hover:       #FF8555;
+--primary-muted:       rgba(255, 107, 53, 0.12);
+--primary-glow:        rgba(255, 107, 53, 0.25);
 
-/* ── Accent 2 — Amber (gradient pair, badges, highlights) ── */
---secondary:           #FFB347
---secondary-foreground:#1A1A00
---secondary-hover:     #FFC060
---secondary-muted:     rgba(255, 179, 71, 0.12)
+/* ── Accent 2 — Amber ── */
+--secondary:           #FFB347;
+--secondary-foreground:#1A1A00;
+--secondary-hover:     #FFC060;
+--secondary-muted:     rgba(255, 179, 71, 0.12);
 
-/* ── Ring tier colors (not for UI — product display only) ── */
---ring-gold:           #C9A84C   /* Elite / Gold model */
---ring-platinum:       #E0E0E8   /* Pro / Platinum model */
---ring-obsidian:       #3A3A4A   /* Obsidian model */
---ring-air:            #D4C5B0   /* Air / Rose Titanium model */
+/* ── Ring tier colors — product display only ── */
+--ring-gold:           #C8A96A;   /* Elite — champagne titanium */
+--ring-platinum:       #E0E0E8;   /* Pro — platinum silver */
+--ring-obsidian:       #3A3A4A;   /* Obsidian — dark titanium */
+--ring-air:            #D4C5B0;   /* Air — rose/champagne titanium */
 
 /* ── Feedback ── */
---destructive:         #E05252
---destructive-foreground: #FFFFFF
---success:             #4CAF82
---warning:             #FFB347   /* reuse amber */
+--destructive:         #E05252;
+--destructive-foreground: #FFFFFF;
+--success:             #4CAF82;
+--warning:             #FFB347;
 
 /* ── Misc ── */
---radius:              0.5rem    /* base border radius */
---ring:                #FF6B35   /* focus ring color */
+--radius:              0.5rem;
+--ring:                #FF6B35;
 ```
-
 ### 2.3 Semantic Tokens — Light Mode
 
 Override under `.light` or `:root` when theme = light.
-
-```css
 /* ── Backgrounds ── */
---background:          #F9F8F5
---surface:             #FFFFFF
---card:                #FFFFFF
---card-hover:          #F4F3F0
---popover:             #FFFFFF
+--background:          #F3EFE8;  
+--surface:             #FAF7F1;  
+--card:                #FFFDF8; 
+--card-hover:          #F0EAE2;
+--popover:             #FFFDF8;
 
 /* ── Borders ── */
---border:              #E2E0DA
---border-strong:       #C8C6C0
---input:               #E2E0DA
+--border:              #DDD4C8;
+--border-strong:       #C9BDAF;
+--input:               #DDD4C8;
 
 /* ── Text ── */
---foreground:          #1A1A28
---muted-foreground:    #6B6B7E
---card-foreground:     #1A1A28
+--foreground:          #211D1A;  
+--muted-foreground:    #746B62;
+--card-foreground:     #211D1A;
 
-/* ── Accent 1 — Ember (same, accent doesn't flip) ── */
---primary:             #E85A22   /* slightly darker for contrast on white */
---primary-foreground:  #FFFFFF
---primary-hover:       #FF6B35
---primary-muted:       rgba(232, 90, 34, 0.08)
---primary-glow:        rgba(232, 90, 34, 0.18)
+/* ── Accent 1 — Ember ── */
+--primary:             #C94F1D;  
+--primary-foreground:  #FFFFFF;
+--primary-hover:       #DD6330;
+--primary-muted:       rgba(201, 79, 29, 0.08);
+--primary-glow:        rgba(201, 79, 29, 0.16);
 
 /* ── Accent 2 — Amber ── */
---secondary:           #D4820A   /* darker amber for light bg readability */
---secondary-foreground:#FFFFFF
---secondary-hover:     #E8920F
---secondary-muted:     rgba(212, 130, 10, 0.10)
+--secondary:           #B87516;  
+--secondary-foreground:#FFFFFF;
+--secondary-hover:     #C98520;
+--secondary-muted:     rgba(184, 117, 22, 0.10);
 
 /* ── Feedback ── */
---destructive:         #C0392B
---success:             #27AE60
---warning:             #D4820A
-```
+--destructive:         #B84235;
+--success:             #2F8F5B;
+--warning:             #B87516;
 
 ### 2.4 globals.css Setup
 
@@ -703,3 +710,238 @@ Key responsive rules:
 ---
 
 > **For project structure, routing, component rules, and state management — read `architecture.md`.**
+
+---
+
+## 15. Hero Section — Detailed Spec
+
+### Layout
+```
+Desktop (lg+): 2-col split 50/50
+  Left:  eyebrow → headline → sub → CTA row → stats bar
+  Right: ring product image (GSAP animated)
+
+Mobile (<lg):  1-col stacked, centered
+  Top:   ring image (smaller)
+  Below: eyebrow → headline → sub → single primary CTA → stats row
+```
+
+### Left col content order
+```
+1. Eyebrow row
+   - Badge: "New · 2025" — ember bg (--primary-muted), ember text, text-xs uppercase tracking-widest
+   - Chip: "Helicorp Ring" — ghost border, muted text
+
+2. Headline — Sora 700
+   Line 1: "Health."  → color: --foreground (ivory)
+   Line 2: "On Your Finger." → gradient-text (ember→amber)
+   Size: text-5xl md:text-6xl lg:text-7xl, tracking -0.03em
+
+3. Subheading — DM Sans 400, text-lg, --muted-foreground, max-w-lg, leading-7
+   "Track sleep, heart rate, SpO₂, stress — all day, all night.
+    No screen. No distraction. Just data that matters."
+
+4. CTA row — flex gap-4
+   Primary: "Shop Rings" — gradient-ember button, shadow-btn-primary
+   Ghost:   "See Features ↓" — border --border-strong, hover ember
+
+5. Stats bar — border-top --border, pt-4, flex gap-8
+   Values: JetBrains Mono 400, text-2xl, --foreground
+   Labels: DM Sans 400, text-xs, --muted-foreground
+   Items: "7 days / Battery life" · "150m / Water resist" · "12+ / Health metrics"
+```
+
+### Right col — ring image
+```
+- next/image with priority={true} (LCP element — never lazy load)
+- Size: 480x480 desktop, 280x280 mobile
+- No bg — image has transparent bg (PNG or WebP with alpha)
+- GSAP float loop: gsap.to(".js-hero-ring", { y: -8, duration: 3, ease: "sine.inOut", yoyo: true, repeat: -1 })
+- Ember glow: absolute div behind image, border-radius full
+  background: radial-gradient(circle, rgba(255,107,53,0.2) 0%, transparent 70%)
+  GSAP pulse: opacity 0.4→1, duration 2s, yoyo repeat
+- Parallax on scroll: GSAP ScrollTrigger, y moves at 0.4x scroll speed
+```
+
+### Background
+```
+- Base: --background (#0D0D12)
+- Nebula overlay: radial-gradient ellipse 80% 60% at 50% 40%
+  rgba(255,107,53,0.08) → rgba(255,179,71,0.04) → transparent
+- Pure CSS — no canvas, no WebGL
+- class="js-hero-bg" for GSAP opacity control
+```
+
+### Scroll indicator
+```
+- position: absolute bottom-8 left-1/2 -translate-x-1/2
+- "scroll" text + ChevronDown icon (Lucide), text-xs --muted-foreground
+- Framer Motion: animate y 0→6px loop, duration 1.2s
+- useEffect: fade out when window.scrollY > 100
+```
+
+---
+
+## 16. Hero Scrollytelling — GSAP ScrollTrigger
+
+Hero section is **pinned** while user scrolls through 3 acts. Total scroll distance = 300vh.
+
+```
+Total section height: 300vh (pin for 3 acts)
+GSAP ScrollTrigger pin: ".js-hero-section", scrub: 1
+```
+
+### Act 1 — Entry (0vh → 0vh, on load, no scroll)
+```
+- All left-col text fades + slides up via Framer Motion (whileInView, once)
+- Ring image fades in, float loop starts
+- Glow pulse starts
+- Scroll indicator appears
+```
+
+### Act 2 — Ring focus (scroll 0 → 150vh)
+```
+Trigger: scrollY enters act 2 zone
+
+Left col:
+  - Text block fades out (opacity 1→0, y 0→-40px)
+  - Stats bar fades out
+  - 3 floating metric cards fade IN around the ring:
+    Card 1 (left):  "Heart Rate · 68 bpm" — icon + value
+    Card 2 (top):   "Sleep Score · 87" — icon + value
+    Card 3 (right): "SpO₂ · 98%" — icon + value
+  Cards animate: opacity 0→1, scale 0.8→1, stagger 0.15s
+
+Ring:
+  - Scales up slightly (scale 1→1.15) and moves to center of viewport
+  - Float loop continues
+  - Glow intensifies (opacity increases)
+
+Background:
+  - Nebula expands slightly
+```
+
+### Act 3 — CTA return (scroll 150vh → 300vh)
+```
+Trigger: scrollY enters act 3 zone
+
+Metric cards fade out
+Ring scales back (1.15→1), moves back to right col position
+
+New content fades in on left:
+  - Headline: "Ready to feel the difference?"
+  - Subheading: "Starting from $199. Free shipping worldwide."
+  - CTA: "Shop All Rings →" (full-width ember gradient button)
+  - Secondary: "Compare models ↓"
+
+Unpin: section unpins, page continues scrolling to FeaturesSection
+```
+
+### Implementation note
+```typescript
+// hooks/useGSAPTimeline.ts
+// Register ScrollTrigger once:
+gsap.registerPlugin(ScrollTrigger)
+
+// Pin the hero:
+ScrollTrigger.create({
+  trigger: ".js-hero-section",
+  start: "top top",
+  end: "+=300%",
+  pin: true,
+  scrub: 1,
+})
+
+// Act 2 timeline:
+const act2 = gsap.timeline({
+  scrollTrigger: { trigger: ".js-hero-section", start: "top top", end: "+=150%", scrub: 1 }
+})
+act2.to(".js-hero-text", { opacity: 0, y: -40 })
+    .to(".js-ring", { scale: 1.15, x: "25%" }, "<")
+    .to(".js-metric-cards", { opacity: 1, scale: 1, stagger: 0.15 }, "<0.3")
+
+// Act 3 timeline:
+const act3 = gsap.timeline({
+  scrollTrigger: { trigger: ".js-hero-section", start: "+=150%", end: "+=300%", scrub: 1 }
+})
+act3.to(".js-metric-cards", { opacity: 0 })
+    .to(".js-ring", { scale: 1, x: 0 }, "<")
+    .to(".js-hero-cta-final", { opacity: 1, y: 0 }, "<0.2")
+```
+
+---
+
+## 17. Product Page — `/products/[slug]`
+
+Style reference: Oura Ring product page — deep dive, cinematic, single product focus.
+
+### Route & data
+```
+Route:     /products/[slug]   (SSG via generateStaticParams)
+Data:      getProductBySlug(slug) from src/data/products.ts
+Metadata:  generateMetadata — title: product.name, description: product.tagline
+```
+
+### Page section order
+```
+1. ProductHero          — full-screen, ring image dominant
+2. ProductColorPicker   — select ring color/material variant
+3. ProductStory         — scrollytelling: what makes this model special
+4. ProductMetrics       — animated stat cards (GSAP counter)
+5. ProductSpecs         — full spec table for this model
+6. ProductFeatures      — 3-col feature grid specific to this model
+7. ProductReviews       — 2-3 testimonials for this model
+8. ProductCTA           — sticky bottom bar + add to cart / wishlist
+9. RelatedProducts      — other Helio Ring models (max 3 cards)
+```
+
+### ProductHero
+```
+Height: 100vh
+Layout: ring image fills 60% of screen (right), text left — same as landing hero
+Ring image: large, priority, GSAP float
+Headline: product.name — Sora 700, text-5xl lg:text-6xl
+Tagline: product.tagline — DM Sans 400, text-xl, muted
+Price: JetBrains Mono, text-4xl, --foreground
+Badge: product.badge (NEW / BESTSELLER / LIMITED) — ember or gold bg
+CTA: "Add to Cart" (ember) + heart icon button (wishlist toggle)
+```
+
+### ProductColorPicker
+```
+Layout: horizontal row of color swatches
+Swatch: 32x32px circle, border 2px solid transparent
+Active swatch: border 2px solid --primary
+Hover: scale 1.1
+On select: update displayed ring image + color name label
+Color name: DM Sans 500, text-sm, --foreground, below swatches
+```
+
+### ProductStory (scrollytelling)
+```
+GSAP ScrollTrigger pin — similar to hero act pattern
+3 story beats, each triggered by scroll:
+  Beat 1: "Built for sleep" — sleep metric animation
+  Beat 2: "Reads your body" — heart rate / SpO₂ visualization  
+  Beat 3: "Lasts all week" — battery life illustration
+Each beat: left text panel fades in, right visual changes
+Duration: 200vh pinned
+```
+
+### Sticky CTA bar
+```
+Position: fixed bottom-0 w-full, z-40
+Visible: after user scrolls past ProductHero (100vh)
+Background: --card, border-top --border, backdrop-blur-md
+Content: product name (left) · price (center) · "Add to Cart" button (right)
+Height: 64px
+Animation: slides up from bottom when triggered (Framer Motion)
+```
+
+### RelatedProducts
+```
+Title: "Explore other Helio Ring models"
+Grid: 3 cards — other products from products.ts excluding current slug
+Card: same ProductCard component used in landing page ProductsSection
+Link: each card → /products/[slug]
+```
