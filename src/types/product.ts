@@ -12,6 +12,17 @@ export interface RingColor {
   imageIndex: number
 }
 
+export interface ProductFeature {
+  icon: string
+  title: string
+  description: string
+}
+
+export interface ProductSize {
+  value: string
+  inStock: boolean
+}
+
 export interface Product {
   id: string
   slug: string
@@ -22,7 +33,8 @@ export interface Product {
   badge?: 'NEW' | 'BESTSELLER' | 'LIMITED'
   colors: RingColor[]
   images: ProductImage[]
-  features: string[]
+  features: ProductFeature[]
+  sizes: ProductSize[]
   specs: Record<string, string>
   inStock: boolean
 }
