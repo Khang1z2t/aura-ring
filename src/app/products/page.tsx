@@ -1,9 +1,36 @@
+import type { Metadata } from 'next'
+
 import { FloatingActionMenu } from '@/components/common/FloatingActionMenu'
 import { Footer } from '@/components/layout/Footer'
 import { Navbar } from '@/components/layout/Navbar'
 import { ProductLineupSection } from '@/components/product/ProductLineupSection'
 import { ProductsHero } from '@/components/product/ProductsHero'
+import { siteConfig } from '@/config/site'
 import { products } from '@/data/products'
+
+export const metadata: Metadata = {
+  title: 'Shop Smart Rings',
+  description:
+    'Compare all Aurora Ring models, finishes, prices, and signatures to find the smart ring that fits your routine.',
+  alternates: {
+    canonical: '/products',
+  },
+  openGraph: {
+    title: 'Shop Smart Rings | Aurora Ring',
+    description:
+      'Compare all Aurora Ring models, finishes, prices, and signatures to find the smart ring that fits your routine.',
+    url: '/products',
+    siteName: siteConfig.brand,
+    images: [siteConfig.ogImage],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Shop Smart Rings | Aurora Ring',
+    description:
+      'Compare all Aurora Ring models, finishes, prices, and signatures to find the smart ring that fits your routine.',
+    images: [siteConfig.ogImage],
+  },
+}
 
 export default function ProductsPage() {
   return (

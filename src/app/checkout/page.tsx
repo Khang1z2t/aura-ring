@@ -1,30 +1,33 @@
-'use client'
+import type { Metadata } from 'next'
 
-import { FloatingActionMenu } from '@/components/common/FloatingActionMenu'
-import { CheckoutForm } from '@/components/checkout/CheckoutForm'
-import { CheckoutOrderSummary } from '@/components/checkout/CheckoutOrderSummary'
-import { Footer } from '@/components/layout/Footer'
-import { Navbar } from '@/components/layout/Navbar'
-import { getCartDisplayItems } from '@/lib/cart'
-import { useCartStore } from '@/store/useCartStore'
+import { CheckoutPageClient } from '@/app/checkout/CheckoutPageClient'
+import { siteConfig } from '@/config/site'
+
+export const metadata: Metadata = {
+  title: 'Checkout',
+  description: 'Complete demo checkout for Aurora Ring and review shipping and payment details.',
+  alternates: {
+    canonical: '/checkout',
+  },
+  robots: {
+    index: false,
+    follow: false,
+  },
+  openGraph: {
+    title: 'Checkout | Aurora Ring',
+    description: 'Complete demo checkout for Aurora Ring and review shipping and payment details.',
+    url: '/checkout',
+    siteName: siteConfig.brand,
+    images: [siteConfig.ogImage],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Checkout | Aurora Ring',
+    description: 'Complete demo checkout for Aurora Ring and review shipping and payment details.',
+    images: [siteConfig.ogImage],
+  },
+}
 
 export default function CheckoutPage() {
-  const items = useCartStore((state) => state.items)
-  const lineItems = getCartDisplayItems(items)
-
-  return (
-    <>
-      <Navbar />
-      <main className="min-h-screen bg-background text-foreground">
-        <section className="px-4 py-12 md:px-8 lg:px-0">
-          <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[1fr_400px]">
-            <CheckoutForm />
-            <CheckoutOrderSummary items={lineItems} />
-          </div>
-        </section>
-      </main>
-      <Footer />
-      <FloatingActionMenu />
-    </>
-  )
+  return <CheckoutPageClient />
 }

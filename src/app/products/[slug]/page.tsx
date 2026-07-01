@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import {
   Activity,
   Brain,
@@ -16,6 +17,7 @@ import { Footer } from '@/components/layout/Footer'
 import { Navbar } from '@/components/layout/Navbar'
 import { ProductDetailImage } from '@/components/product/ProductDetailImage'
 import { ProductDetailPurchasePanel } from '@/components/product/ProductDetailPurchasePanel'
+import { siteConfig } from '@/config/site'
 import { getAllSlugs, getProductBySlug } from '@/data/products'
 import { slugify } from '@/lib/utils'
 
@@ -42,6 +44,41 @@ interface ProductPageProps {
 
 export function generateStaticParams() {
   return getAllSlugs().map((slug) => ({ slug }))
+}
+
+export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
+  const { slug } = await params
+  const product = getProductBySlug(slug)
+
+  if (!product) {
+    return {
+      title: 'Product not found',
+    }
+  }
+
+  const title = `${product.name} | Aurora Ring`
+  const description = `${product.tagline} Explore colors, sizes, sensors, battery life, and specs for ${product.name}.`
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: `/products/${product.slug}`,
+    },
+    openGraph: {
+      title,
+      description,
+      url: `/products/${product.slug}`,
+      siteName: siteConfig.brand,
+      images: [product.images[0]?.src ?? siteConfig.ogImage],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [product.images[0]?.src ?? siteConfig.ogImage],
+    },
+  }
 }
 
 export default async function ProductPage({ params, searchParams }: ProductPageProps) {
