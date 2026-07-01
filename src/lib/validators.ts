@@ -5,16 +5,16 @@ export const subscribeSchema = z.object({
   name: z.string().trim().min(1).optional(),
 })
 
-export const chatMessageSchema = z.object({
-  message: z.string().trim().min(1),
-  history: z
+export const chatRequestSchema = z.object({
+  messages: z
     .array(
       z.object({
         role: z.enum(['user', 'assistant']),
-        content: z.string().trim().min(1),
+        content: z.string().trim().min(1).max(500),
       })
     )
-    .default([]),
+    .min(1)
+    .max(24),
 })
 
 export const checkoutSchema = z.object({
