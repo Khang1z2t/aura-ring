@@ -2,6 +2,7 @@ import Link from 'next/link'
 
 import { ProgressiveImage } from '@/components/common/ProgressiveImage'
 import { Reveal } from '@/components/common/Reveal'
+import { RevealGroup } from '@/components/common/RevealGroup'
 import { products } from '@/data/products'
 
 export function ProductsSection() {
@@ -26,9 +27,9 @@ export function ProductsSection() {
           </p>
         </Reveal>
 
-        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
+        <RevealGroup className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
           {products.map((product, index) => (
-            <Reveal key={product.id} delay={0.05 * index}>
+            <Reveal key={product.id} variant="stagger-item" delay={0.05 * index}>
               <article className="group flex h-full flex-col rounded-[1.75rem] bg-card/55 p-5 ring-1 ring-white/6 transition duration-200 hover:bg-card/80">
                 <div className="relative overflow-hidden rounded-[1.4rem] bg-surface">
                   {product.badge ? (
@@ -77,7 +78,7 @@ export function ProductsSection() {
               </article>
             </Reveal>
           ))}
-        </div>
+        </RevealGroup>
       </div>
     </section>
   )

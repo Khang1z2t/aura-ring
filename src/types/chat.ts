@@ -27,11 +27,3 @@ export interface ChatClientMessage extends ChatTurn {
   suggestions?: string[]
 }
 
-export type ChatIntent =
-  | 'greeting'
-  | 'compare-products'
-  | 'show-colors'
-  | 'show-sizes'
-  | 'sleep-recommendation'
-  | 'open-ended'
-  | 'out-of-scope'

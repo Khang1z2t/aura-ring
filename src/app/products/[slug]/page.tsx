@@ -13,6 +13,8 @@ import {
 import { notFound } from 'next/navigation'
 
 import { FloatingActionMenu } from '@/components/common/FloatingActionMenu'
+import { Reveal } from '@/components/common/Reveal'
+import { RevealGroup } from '@/components/common/RevealGroup'
 import { Footer } from '@/components/layout/Footer'
 import { Navbar } from '@/components/layout/Navbar'
 import { ProductDetailImage } from '@/components/product/ProductDetailImage'
@@ -107,35 +109,34 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
 
         <section className="px-4 pb-20 md:px-8 md:pb-24 lg:px-0 lg:pb-28">
           <div className="mx-auto max-w-7xl space-y-10">
-            <section className="border-t border-border/70 pt-8">
+            <Reveal variant="fade" className="border-t border-border/70 pt-8">
               <p className="text-xs font-medium uppercase tracking-[0.22em] text-primary">
                 Why choose {product.name}
               </p>
-              <div className="mt-5 grid gap-4 md:grid-cols-3">
+              <RevealGroup className="mt-5 grid gap-4 md:grid-cols-3">
                 {product.features.map((feature) => {
                   const Icon = featureIcons[feature.icon as keyof typeof featureIcons] ?? Sparkles
 
                   return (
-                    <article
-                      key={feature.title}
-                      className="rounded-[1.75rem] border border-border bg-card/50 p-5"
-                    >
-                      <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
-                        <Icon className="h-4 w-4" />
-                      </span>
-                      <h2 className="mt-4 text-base font-medium text-foreground md:text-lg">
-                        {feature.title}
-                      </h2>
-                      <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                        {feature.description}
-                      </p>
-                    </article>
+                    <Reveal key={feature.title} variant="stagger-item">
+                      <article className="rounded-[1.75rem] border border-border bg-card/50 p-5">
+                        <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+                          <Icon className="h-4 w-4" />
+                        </span>
+                        <h2 className="mt-4 text-base font-medium text-foreground md:text-lg">
+                          {feature.title}
+                        </h2>
+                        <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                          {feature.description}
+                        </p>
+                      </article>
+                    </Reveal>
                   )
                 })}
-              </div>
-            </section>
+              </RevealGroup>
+            </Reveal>
 
-            <section className="border-t border-border/70 pt-8">
+            <Reveal variant="fade" className="border-t border-border/70 pt-8">
               <p className="text-xs font-medium uppercase tracking-[0.22em] text-primary">
                 Specifications
               </p>
@@ -150,7 +151,7 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
                   </div>
                 ))}
               </dl>
-            </section>
+            </Reveal>
           </div>
         </section>
       </main>

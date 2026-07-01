@@ -1,10 +1,27 @@
 import type { Metadata } from 'next'
 import { DM_Sans, JetBrains_Mono, Sora } from 'next/font/google'
 
+import { PageTransition } from '@/components/common/PageTransition'
 import { ThemeProvider } from '@/components/common/ThemeProvider'
 import { siteConfig } from '@/config/site'
 
 import './globals.css'
+
+const themeInitScript = `
+(() => {
+  try {
+    const stored = window.localStorage.getItem('aurora-theme')
+    const theme = stored ? JSON.parse(stored)?.state?.theme : 'dark'
+    const isLight = theme === 'light'
+    document.documentElement.classList.toggle('light', isLight)
+    document.documentElement.style.colorScheme = isLight ? 'light' : 'dark'
+  } catch {
+    document.documentElement.classList.remove('light')
+    document.documentElement.style.colorScheme = 'dark'
+  }
+})()
+`
+
 
 const sora = Sora({
   subsets: ['latin'],
@@ -71,10 +88,13 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${sora.variable} ${dmSans.variable} ${jetBrainsMono.variable} dark`}
+      className={`${sora.variable} ${dmSans.variable} ${jetBrainsMono.variable}`}
     >
-      <body className="min-h-screen bg-background font-body text-foreground antialiased transition-colors duration-300">
-        <ThemeProvider>{children}</ThemeProvider>
+      <body className="min-h-screen bg-background font-body text-foreground antialiased">
+        <script>{themeInitScript}</script>
+        <ThemeProvider>
+          <PageTransition>{children}</PageTransition>
+        </ThemeProvider>
       </body>
     </html>
   )

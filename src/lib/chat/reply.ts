@@ -1,16 +1,15 @@
 import { GoogleGenAI } from '@google/genai'
 import { z } from 'zod'
 
-import { buildChatCatalogContext, type ChatCatalogContext } from '@/lib/chat/context'
-import { siteConfig } from '@/config/site'
+import { buildChatCatalogContext } from '@/lib/chat/context'
 import {
-  buildGreetingResponse,
   buildOutOfScopeResponse,
-  classifyChatIntent,
+  buildUnavailableResponse,
   detectChatLanguage,
+  isAuroraScopedMessage,
 } from '@/lib/chat/guards'
 import { buildChatPrompt } from '@/lib/chat/prompt'
-import type { ChatIntent, ChatResponse, ChatTurn } from '@/types/chat'
+import type { ChatResponse, ChatTurn } from '@/types/chat'
 
 const modelResponseSchema = z.object({
   message: z.string().trim().min(1),
@@ -26,7 +25,11 @@ const modelResponseSchema = z.object({
 })
 
 const DEFAULT_MODEL = 'gemini-3.5-flash'
+// Dùng khi model chính bị quá tải (Gemini hay trả 503 khi model đang đông request)
+const FALLBACK_MODEL = 'gemini-2.5-flash'
 const REQUEST_TIMEOUT_MS = 15000
+const MAX_RETRIES = 2
+const RETRY_BASE_DELAY_MS = 400
 
 const ENGLISH_SUGGESTIONS = [
   'Compare Aura Air and Aura Pro',
@@ -42,7 +45,7 @@ const VIETNAMESE_SUGGESTIONS = [
   'Size nào còn hàng?',
 ] as const
 
-type ChatReplySource = 'greeting' | 'local' | 'model' | 'fallback' | 'out-of-scope'
+type ChatReplySource = 'guard' | 'model' | 'fallback'
 
 function normalizePromptKey(message: string) {
   return message.toLowerCase().trim().replace(/\s+/g, ' ')
@@ -55,23 +58,26 @@ function getSafeSuggestions(message: string, exclude?: string) {
   return suggestions.filter((suggestion) => normalizePromptKey(suggestion) !== excluded).slice(0, 4)
 }
 
-function buildProductsLink(language: 'vi' | 'en') {
-  return language === 'vi'
-    ? { label: 'Xem tất cả sản phẩm', href: '/products' }
-    : { label: 'View all products', href: '/products' }
-}
-
-function buildProductLink(language: 'vi' | 'en', slug: string, name: string) {
-  return {
-    label: language === 'vi' ? `Xem ${name}` : `View ${name}`,
-    href: `/products/${slug}`,
+/**
+ * Lỗi tạm thời từ phía Gemini (model quá tải, rate limit, mạng chập chờn).
+ * Những lỗi này nên được RETRY thay vì trả thẳng lỗi cho user.
+ */
+class ChatProviderRetryableError extends Error {
+  status?: number
+  constructor(message: string, status?: number) {
+    super(message)
+    this.name = 'ChatProviderRetryableError'
+    this.status = status
   }
 }
 
+/** Lỗi cấu hình / auth — retry vô ích, cần báo ngay. */
 class ChatProviderError extends Error {
-  constructor(message: string) {
+  status?: number
+  constructor(message: string, status?: number) {
     super(message)
     this.name = 'ChatProviderError'
+    this.status = status
   }
 }
 
@@ -87,161 +93,6 @@ class ChatProviderFormatError extends Error {
     super('Gemini response format invalid')
     this.name = 'ChatProviderFormatError'
   }
-}
-
-function buildUnavailableFallback(message: string): ChatResponse {
-  if (detectChatLanguage(message) === 'vi') {
-    return {
-      message: 'Aurora Assistant tạm thời chưa phản hồi được. Bạn thử lại sau ít phút nhé.',
-      suggestions: getSafeSuggestions(message),
-      links: [],
-    }
-  }
-
-  return {
-    message: 'Aurora Assistant is temporarily unavailable right now.',
-    suggestions: getSafeSuggestions(message),
-    links: [],
-  }
-}
-
-function buildOpenEndedCatalogReply(input: {
-  message: string
-  context: ChatCatalogContext
-}) {
-  const language = detectChatLanguage(input.message)
-  const normalized = normalizePromptKey(input.message)
-  const products = input.context.products.length ? input.context.products : []
-
-  if (!products.length) {
-    return null
-  }
-
-  const companyQuestion =
-    normalized.includes('company') ||
-    normalized.includes('brand') ||
-    normalized.includes('about aurora') ||
-    normalized.includes('aurora là gì') ||
-    normalized.includes('công ty') ||
-    normalized.includes('cong ty') ||
-    normalized.includes('thương hiệu') ||
-    normalized.includes('thuong hieu')
-
-  if (companyQuestion) {
-    return {
-      message:
-        language === 'vi'
-          ? `${siteConfig.brand} là thương hiệu nhẫn thông minh tập trung vào theo dõi giấc ngủ, phục hồi, nhịp tim và stress trong thiết kế jewelry-first. Hiện lineup có ${products.map((product) => product.name).join(', ')}.`
-          : `${siteConfig.brand} is a smart ring brand focused on sleep, recovery, heart-rate, and stress tracking in a jewelry-first design. The current lineup includes ${products.map((product) => product.name).join(', ')}.`,
-      suggestions:
-        language === 'vi'
-          ? ['Aura Ring có loại nào?', 'Có những màu nào?', 'So sánh Aura Air và Aura Pro']
-          : ['What Aura Ring models are available?', 'Show available colors', 'Compare Aura Air and Aura Pro'],
-      links: [{ label: language === 'vi' ? 'Xem tất cả sản phẩm' : 'View all products', href: '/products' }],
-    } satisfies ChatResponse
-  }
-
-  return {
-    message:
-      language === 'vi'
-        ? `Hiện ${siteConfig.brand} có ${products.length} mẫu: ${products.map((product) => `${product.name} (${product.price})`).join(', ')}. ${products.map((product) => `${product.name}: ${product.tagline}`).join(' ')}`
-        : `${siteConfig.brand} currently has ${products.length} models: ${products.map((product) => `${product.name} (${product.price})`).join(', ')}. ${products.map((product) => `${product.name}: ${product.tagline}`).join(' ')}`,
-    suggestions:
-      language === 'vi'
-        ? ['So sánh Aura Air và Aura Pro', 'Có những màu nào?', 'Size nào còn hàng?']
-        : ['Compare Aura Air and Aura Pro', 'Show available colors', 'Which sizes are in stock?'],
-    links: input.context.links.length
-      ? input.context.links
-      : [{ label: language === 'vi' ? 'Xem tất cả sản phẩm' : 'View all products', href: '/products' }],
-  } satisfies ChatResponse
-}
-
-function buildLocalCatalogReply(input: {
-  message: string
-  intent: ChatIntent
-  context: ChatCatalogContext
-}) {
-  const language = detectChatLanguage(input.message)
-  const products = input.context.products
-
-  if (!products.length) {
-    return null
-  }
-
-  if (input.intent === 'show-colors') {
-    return {
-      message:
-        language === 'vi'
-          ? products.map((product) => `${product.name} có các màu ${product.colors.join(', ')}.`).join(' ')
-          : products.map((product) => `${product.name} comes in ${product.colors.join(', ')}.`).join(' '),
-      suggestions: getSafeSuggestions(input.message, language === 'vi' ? 'Có những màu nào?' : 'Show available colors'),
-      links: [buildProductsLink(language)],
-    } satisfies ChatResponse
-  }
-
-  if (input.intent === 'show-sizes') {
-    return {
-      message:
-        language === 'vi'
-          ? products.map((product) => `${product.name} còn các size ${product.sizesInStock.join(', ')}.`).join(' ')
-          : products.map((product) => `${product.name} has sizes ${product.sizesInStock.join(', ')} in stock.`).join(' '),
-      suggestions: getSafeSuggestions(
-        input.message,
-        language === 'vi' ? 'Size nào còn hàng?' : 'Which sizes are in stock?'
-      ),
-      links: products.slice(0, 3).map((product) => buildProductLink(language, product.slug, product.name)),
-    } satisfies ChatResponse
-  }
-
-  if (input.intent === 'compare-products') {
-    const auraAir = products.find((product) => product.slug === 'aura-air')
-    const auraPro = products.find((product) => product.slug === 'aura-pro')
-
-    if (!auraAir || !auraPro) {
-      return null
-    }
-
-    return {
-      message:
-        language === 'vi'
-          ? `Aura Air nhẹ hơn và có giá ${auraAir.price}, phù hợp theo dõi phục hồi hằng ngày. Aura Pro có giá ${auraPro.price}, pin ${auraPro.specs.Battery}, chống nước ${auraPro.specs.Water}, hợp hơn nếu bạn muốn theo dõi tập luyện và nhịp tim kỹ hơn.`
-          : `Aura Air is lighter and starts at ${auraAir.price}, which fits daily recovery tracking. Aura Pro starts at ${auraPro.price}, adds ${auraPro.specs.Battery} battery life and ${auraPro.specs.Water} water resistance, and suits deeper training and heart-rate tracking better.`,
-      suggestions: getSafeSuggestions(
-        input.message,
-        language === 'vi' ? 'So sánh Aura Air và Aura Pro' : 'Compare Aura Air and Aura Pro'
-      ),
-      links: [
-        buildProductLink(language, auraAir.slug, auraAir.name),
-        buildProductLink(language, auraPro.slug, auraPro.name),
-      ],
-    } satisfies ChatResponse
-  }
-
-  if (input.intent === 'sleep-recommendation') {
-    const sleepRanked = [...products]
-      .filter((product) => product.specs.Battery)
-      .sort((left, right) => Number.parseInt(right.specs.Battery, 10) - Number.parseInt(left.specs.Battery, 10))
-
-    const best = sleepRanked[0]
-
-    if (!best) {
-      return null
-    }
-
-    return {
-      message:
-        language === 'vi'
-          ? `${best.name} hợp nhất nếu bạn ưu tiên theo dõi giấc ngủ vì pin ${best.specs.Battery}, chống nước ${best.specs.Water}, và tagline ${best.tagline.toLowerCase()}`
-          : `${best.name} is best if sleep tracking matters most because it offers ${best.specs.Battery} battery life, ${best.specs.Water} water resistance, and ${best.tagline.toLowerCase()}`,
-      suggestions: getSafeSuggestions(
-        input.message,
-        language === 'vi' ? 'Nhẫn nào hợp để theo dõi giấc ngủ?' : 'Which Aura ring fits sleep tracking?'
-      ),
-      links: [buildProductLink(language, best.slug, best.name)],
-    } satisfies ChatResponse
-  }
-
-  return null
 }
 
 function sanitizeSdkText(text: string | undefined) {
@@ -354,11 +205,12 @@ function buildResponseSchema() {
   } as const
 }
 
-function normalizeGeneratedLinks(links: unknown, fallbackLinks: ChatResponse['links']) {
-  if (!Array.isArray(links)) {
-    return fallbackLinks
+function normalizeGeneratedLinks(links: unknown, allowedLinks: ChatResponse['links']) {
+  if (!Array.isArray(links) || !allowedLinks.length) {
+    return allowedLinks
   }
 
+  const allowedByHref = new Map(allowedLinks.map((link) => [link.href, link]))
   const normalized = links
     .map((link) => {
       if (!link || typeof link !== 'object') {
@@ -368,23 +220,24 @@ function normalizeGeneratedLinks(links: unknown, fallbackLinks: ChatResponse['li
       const item = link as { label?: unknown; href?: unknown; title?: unknown; url?: unknown }
       const label = typeof item.label === 'string' ? item.label : typeof item.title === 'string' ? item.title : ''
       const href = typeof item.href === 'string' ? item.href : typeof item.url === 'string' ? item.url : ''
+      const allowed = allowedByHref.get(href)
 
-      if (!label.trim() || !href.startsWith('/')) {
+      if (!allowed || !href.startsWith('/')) {
         return null
       }
 
       return {
-        label: label.trim(),
+        label: label.trim() || allowed.label,
         href,
       }
     })
     .filter((item): item is NonNullable<typeof item> => !!item)
     .slice(0, 3)
 
-  return normalized.length ? normalized : fallbackLinks
+  return normalized.length ? normalized : allowedLinks
 }
 
-function normalizeGeneratedPayload(parsedJson: unknown, fallbackLinks: ChatResponse['links']) {
+function normalizeGeneratedPayload(parsedJson: unknown, allowedLinks: ChatResponse['links']) {
   if (!parsedJson || typeof parsedJson !== 'object') {
     return parsedJson
   }
@@ -398,8 +251,22 @@ function normalizeGeneratedPayload(parsedJson: unknown, fallbackLinks: ChatRespo
   return {
     message: candidate.message,
     suggestions: candidate.suggestions,
-    links: normalizeGeneratedLinks(candidate.links, fallbackLinks),
+    links: normalizeGeneratedLinks(candidate.links, allowedLinks),
   }
+}
+
+function filterAllowedSuggestions(message: string, history: ChatTurn[], suggestions: string[]) {
+  const safeSuggestions = suggestions
+    .map((suggestion) => suggestion.trim())
+    .filter(Boolean)
+    .filter((suggestion) => isAuroraScopedMessage(suggestion, history))
+    .slice(0, 4)
+
+  return safeSuggestions.length ? safeSuggestions : getSafeSuggestions(message)
+}
+
+function clampAssistantMessage(message: string) {
+  return message.replace(/\s+/g, ' ').trim()
 }
 
 function parseModelResponse(text: string) {
@@ -416,6 +283,7 @@ function parseModelResponse(text: string) {
 
 function finalizeResponse(input: {
   message: string
+  history: ChatTurn[]
   contextLinks: ChatResponse['links']
   parsedJson: unknown
 }) {
@@ -427,13 +295,37 @@ function finalizeResponse(input: {
 
   return {
     ...parsed.data,
-    suggestions: parsed.data.suggestions.length
-      ? parsed.data.suggestions
-      : detectChatLanguage(input.message) === 'vi'
-        ? ['So sánh Aura Air và Aura Pro', 'Có những màu nào?']
-        : ['Compare Aura Air and Aura Pro', 'Show available colors'],
+    message: clampAssistantMessage(parsed.data.message),
+    suggestions: filterAllowedSuggestions(input.message, input.history, parsed.data.suggestions),
     links: parsed.data.links.length ? parsed.data.links : input.contextLinks,
   }
+}
+
+/**
+ * Cố gắng đọc HTTP status thật từ lỗi do SDK ném ra.
+ * @google/genai thường đính kèm status trong `error.status` hoặc trong message dạng "[503 ...]".
+ */
+function extractStatusCode(error: unknown): number | undefined {
+  if (error && typeof error === 'object') {
+    const withStatus = error as { status?: unknown; code?: unknown }
+    if (typeof withStatus.status === 'number') return withStatus.status
+    if (typeof withStatus.code === 'number') return withStatus.code
+  }
+
+  if (error instanceof Error) {
+    const match = error.message.match(/\b(429|500|503)\b/)
+    if (match) return Number(match[1])
+  }
+
+  return undefined
+}
+
+function isRetryableStatus(status: number | undefined) {
+  return status === 429 || status === 500 || status === 503
+}
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
 async function requestGeminiWithSdk(input: {
@@ -461,12 +353,57 @@ async function requestGeminiWithSdk(input: {
       throw new ChatProviderTimeoutError()
     }
 
-    if (error instanceof Error) {
-      throw new ChatProviderError(error.message)
+    const status = extractStatusCode(error)
+    const message = error instanceof Error ? error.message : String(error)
+
+    if (isRetryableStatus(status)) {
+      throw new ChatProviderRetryableError(message, status)
     }
 
-    throw error
+    throw new ChatProviderError(message, status)
   }
+}
+
+/**
+ * Gọi Gemini với retry cho lỗi tạm thời (model overloaded / rate limit / lỗi mạng),
+ * có backoff tăng dần và, ở lần thử cuối, chuyển sang FALLBACK_MODEL nếu khác model chính.
+ */
+async function requestGeminiWithRetry(input: {
+  apiKey: string
+  model: string
+  promptSystem: string
+  promptUser: string
+}) {
+  let lastError: unknown
+
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt += 1) {
+    // Ở lần thử cuối cùng, nếu model chính khác model fallback thì đổi model
+    const useFallbackModel = attempt === MAX_RETRIES && input.model !== FALLBACK_MODEL
+    const model = useFallbackModel ? FALLBACK_MODEL : input.model
+
+    try {
+      return await requestGeminiWithSdk({ ...input, model })
+    } catch (error) {
+      lastError = error
+
+      const isRetryable =
+        error instanceof ChatProviderRetryableError || error instanceof ChatProviderTimeoutError
+
+      console.error(
+        `[gemini-chat] attempt ${attempt + 1}/${MAX_RETRIES + 1} failed (model=${model}):`,
+        error instanceof Error ? error.message : error
+      )
+
+      if (!isRetryable || attempt === MAX_RETRIES) {
+        throw error
+      }
+
+      await sleep(RETRY_BASE_DELAY_MS * 2 ** attempt)
+    }
+  }
+
+  // Không bao giờ chạy tới đây, nhưng TypeScript cần một throw cuối
+  throw lastError
 }
 
 export async function buildChatReply(input: {
@@ -477,63 +414,24 @@ export async function buildChatReply(input: {
   status: number
   source: ChatReplySource
 }> {
-  const intent = classifyChatIntent(input.message)
-
-  console.info('[chat:intent]', {
-    message: input.message,
-    normalized: normalizePromptKey(input.message),
-    intent,
-  })
-
-  if (intent === 'greeting') {
-    return {
-      response: buildGreetingResponse(input.message),
-      status: 200,
-      source: 'greeting',
-    }
-  }
-
-  if (intent === 'out-of-scope') {
+  if (!isAuroraScopedMessage(input.message, input.history)) {
     return {
       response: buildOutOfScopeResponse(input.message),
       status: 200,
-      source: 'out-of-scope',
+      source: 'guard',
     }
   }
 
-  const context = buildChatCatalogContext(input.message)
-  const localReply = buildLocalCatalogReply({
+  const context = buildChatCatalogContext({
     message: input.message,
-    intent,
-    context,
+    history: input.history,
   })
-
-  if (localReply) {
-    return {
-      response: localReply,
-      status: 200,
-      source: 'local',
-    }
-  }
-
-  const openEndedFallback = buildOpenEndedCatalogReply({
-    message: input.message,
-    context,
-  })
-
-  if (openEndedFallback) {
-    return {
-      response: openEndedFallback,
-      status: 200,
-      source: 'local',
-    }
-  }
-
   const apiKey = process.env.GEMINI_API_KEY?.trim()
 
   if (!apiKey) {
+    console.error('[gemini-chat] Missing GEMINI_API_KEY env var')
     return {
-      response: buildUnavailableFallback(input.message),
+      response: buildUnavailableResponse(input.message),
       status: 503,
       source: 'fallback',
     }
@@ -546,7 +444,7 @@ export async function buildChatReply(input: {
   })
 
   try {
-    const response = await requestGeminiWithSdk({
+    const response = await requestGeminiWithRetry({
       apiKey,
       model: resolveGeminiModel(),
       promptSystem: prompt.system,
@@ -558,6 +456,7 @@ export async function buildChatReply(input: {
     return {
       response: finalizeResponse({
         message: input.message,
+        history: input.history,
         contextLinks: context.links,
         parsedJson: typeof parsedJson === 'string' ? parseModelResponse(parsedJson) : parsedJson,
       }),
@@ -565,12 +464,25 @@ export async function buildChatReply(input: {
       source: 'model',
     }
   } catch (error) {
+    // Log đầy đủ để debug trên server — đây là phần code cũ bị thiếu hoàn toàn
+    console.error('[gemini-chat] Final failure:', {
+      name: error instanceof Error ? error.name : 'unknown',
+      message: error instanceof Error ? error.message : String(error),
+      status: extractStatusCode(error),
+    })
+
+    if (error instanceof ChatProviderFormatError) {
+      return {
+        response: buildFormatFallback(input.message, context.links),
+        status: 502,
+        source: 'fallback',
+      }
+    }
+
+    // ChatProviderError (auth/config) hoặc hết retry cho lỗi tạm thời -> báo user thử lại
     return {
-      response:
-        error instanceof ChatProviderFormatError
-          ? buildFormatFallback(input.message, context.links)
-          : buildUnavailableFallback(input.message),
-      status: error instanceof ChatProviderFormatError ? 502 : 503,
+      response: buildUnavailableResponse(input.message),
+      status: 503,
       source: 'fallback',
     }
   }

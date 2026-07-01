@@ -1,10 +1,16 @@
+import { Reveal } from '@/components/common/Reveal'
+
 export function SubscribeSection() {
   return (
     <section
       id="subscribe"
       className="px-4 py-20 md:px-8 md:py-28 lg:px-0 lg:py-36"
     >
-      <div className="mx-auto max-w-7xl overflow-hidden rounded-[2rem] bg-gradient-to-br from-ember to-amber p-6 text-white md:p-8 lg:p-12">
+      <Reveal
+        variant="featured"
+        amount={0.08}
+        className="mx-auto max-w-7xl overflow-hidden rounded-[2rem] bg-gradient-to-br from-ember to-amber p-6 text-white md:p-8 lg:p-12"
+      >
         <div className="max-w-3xl">
           <p className="text-xs font-medium uppercase tracking-[0.22em] text-white/80">Subscribe</p>
           <h2 className="mt-4 font-display text-3xl font-semibold tracking-[-0.02em] md:text-4xl">
@@ -29,7 +35,7 @@ export function SubscribeSection() {
             Join the list
           </button>
         </form>
-      </div>
+      </Reveal>
     </section>
   )
 }

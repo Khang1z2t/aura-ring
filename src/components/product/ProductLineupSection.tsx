@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 
+import { Reveal } from '@/components/common/Reveal'
+import { RevealGroup } from '@/components/common/RevealGroup'
 import { cn } from '@/lib/utils'
 import type { Product } from '@/types/product'
 
@@ -70,7 +72,7 @@ export function ProductLineupSection({ product }: ProductLineupSectionProps) {
   return (
     <section className="px-4 py-12 md:px-8 md:py-16 lg:px-0 lg:py-20">
       <div className="mx-auto max-w-7xl">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between lg:gap-6">
+        <Reveal variant="fade" className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between lg:gap-6">
           <div className="max-w-3xl">
             <h2 className="font-display text-4xl font-semibold tracking-[-0.03em] md:text-5xl">
               {product.name}
@@ -126,10 +128,10 @@ export function ProductLineupSection({ product }: ProductLineupSectionProps) {
               </button>
             </div>
           ) : null}
-        </div>
+        </Reveal>
 
-        <div
-          ref={carouselRef}
+        <RevealGroup
+          containerRef={carouselRef}
           className={cn(
             'mt-8 gap-4 lg:gap-5',
             showMobileControls
@@ -141,8 +143,9 @@ export function ProductLineupSection({ product }: ProductLineupSectionProps) {
           )}
         >
           {product.colors.map((color) => (
-            <div
+            <Reveal
               key={`${product.id}-${color.name}`}
+              variant="stagger-item"
               className={cn(
                 'w-[15.5rem] shrink-0 snap-start sm:w-[17rem] md:w-[18rem]',
                 useDesktopCarousel
@@ -151,9 +154,9 @@ export function ProductLineupSection({ product }: ProductLineupSectionProps) {
               )}
             >
               <ProductColorCard product={product} color={color} />
-            </div>
+            </Reveal>
           ))}
-        </div>
+        </RevealGroup>
       </div>
     </section>
   )

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 
 import { FloatingActionMenu } from '@/components/common/FloatingActionMenu'
+import { Reveal } from '@/components/common/Reveal'
 import { Footer } from '@/components/layout/Footer'
 import { Navbar } from '@/components/layout/Navbar'
 import { ProductLineupSection } from '@/components/product/ProductLineupSection'
@@ -48,7 +49,10 @@ export default function ProductsPage() {
         </section>
 
         <section className="px-4 pb-20 md:px-8 md:pb-24 lg:px-0 lg:pb-28">
-          <div className="mx-auto max-w-4xl rounded-[2rem] border border-border bg-card/50 p-6 md:p-8 lg:p-10">
+          <Reveal
+            variant="featured"
+            className="mx-auto max-w-4xl rounded-[2rem] border border-border bg-card/50 p-6 md:p-8 lg:p-10"
+          >
             <p className="text-xs font-medium uppercase tracking-[0.22em] text-primary">
               Aurora lineup
             </p>
@@ -61,7 +65,7 @@ export default function ProductsPage() {
               Obsidian strips everything back to black. Same quiet biometric core, different way to
               wear it.
             </p>
-          </div>
+          </Reveal>
         </section>
       </main>
       <Footer />

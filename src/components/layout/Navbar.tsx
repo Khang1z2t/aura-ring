@@ -19,15 +19,25 @@ export function Navbar() {
         </Link>
 
         <nav className="hidden items-center gap-6 lg:flex">
-          {siteConfig.nav.map((item) => (
-            <a
-              key={item.href}
-              href={item.href}
-              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-            >
-              {item.label}
-            </a>
-          ))}
+          {siteConfig.nav.map((item) =>
+            item.href.startsWith('/#') ? (
+              <a
+                key={item.href}
+                href={item.href}
+                className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+              >
+                {item.label}
+              </a>
+            ) : (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+              >
+                {item.label}
+              </Link>
+            )
+          )}
         </nav>
 
         <div className="hidden items-center gap-3 lg:flex">

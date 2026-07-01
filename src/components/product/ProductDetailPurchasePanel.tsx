@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { useMediaQuery } from '@/hooks/useMediaQuery'
+import { Reveal } from '@/components/common/Reveal'
 import { cn, formatPrice, slugify } from '@/lib/utils'
 import { useCartStore } from '@/store/useCartStore'
 import type { Product } from '@/types/product'
@@ -338,7 +339,8 @@ export function ProductDetailPurchasePanel({
   }, [isDesktop])
 
   return (
-    <section ref={purchasePanelRef} className="p-1 md:p-2">
+    <Reveal variant="fade" delay={0.06}>
+      <section ref={purchasePanelRef} className="p-1 md:p-2">
       {product.badge ? (
         <p className="text-xs font-medium uppercase tracking-[0.22em] text-primary">
           {product.badge}
@@ -546,13 +548,14 @@ export function ProductDetailPurchasePanel({
         ) : null}
       </AnimatePresence>
 
-      <p className="mt-3 text-sm text-muted-foreground">
-        {sizeMode === 'kit'
-          ? 'Sizing kit selected by default.'
-          : selectedSize
-            ? `Direct size ${selectedSize} selected.`
-            : 'Choose an in-stock size to continue with direct fit.'}
-      </p>
-    </section>
+        <p className="mt-3 text-sm text-muted-foreground">
+          {sizeMode === 'kit'
+            ? 'Sizing kit selected by default.'
+            : selectedSize
+              ? `Direct size ${selectedSize} selected.`
+              : 'Choose an in-stock size to continue with direct fit.'}
+        </p>
+      </section>
+    </Reveal>
   )
 }
