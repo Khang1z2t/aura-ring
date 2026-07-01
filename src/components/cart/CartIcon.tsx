@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { ShoppingBag } from 'lucide-react'
 
+import { useHydrated } from '@/hooks/useHydrated'
 import { cn } from '@/lib/utils'
 import { useCartStore } from '@/store/useCartStore'
 
@@ -11,6 +12,7 @@ interface CartIconProps {
 }
 
 export function CartIcon({ mobile = false }: CartIconProps) {
+  const hydrated = useHydrated()
   const count = useCartStore((state) => state.itemCount())
 
   return (
@@ -25,7 +27,7 @@ export function CartIcon({ mobile = false }: CartIconProps) {
       )}
     >
       <ShoppingBag className={mobile ? 'h-5 w-5' : 'h-4 w-4'} />
-      {count > 0 ? (
+      {hydrated && count > 0 ? (
         <span
           className={cn(
             'absolute inline-flex items-center justify-center rounded-full bg-primary font-semibold leading-none text-primary-foreground',

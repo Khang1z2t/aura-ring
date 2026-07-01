@@ -58,6 +58,7 @@ export const useCartStore = create<CartState>()(
     {
       name: 'aurora-cart',
       storage: createJSONStorage(() => localStorage),
+      skipHydration: true,
     }
   )
 )

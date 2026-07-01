@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react'
 
+import { useCartStore } from '@/store/useCartStore'
 import { useThemeStore } from '@/store/useThemeStore'
 
 interface ThemeProviderProps {
@@ -10,6 +11,11 @@ interface ThemeProviderProps {
 
 export function ThemeProvider({ children }: ThemeProviderProps) {
   const theme = useThemeStore((state) => state.theme)
+
+  useEffect(() => {
+    useThemeStore.persist.rehydrate()
+    useCartStore.persist.rehydrate()
+  }, [])
 
   useEffect(() => {
     document.documentElement.classList.remove('dark', 'light')

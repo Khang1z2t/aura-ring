@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { createJSONStorage, persist } from 'zustand/middleware'
 
 type Theme = 'dark' | 'light'
 
@@ -8,9 +9,18 @@ interface ThemeState {
   toggleTheme: () => void
 }
 
-export const useThemeStore = create<ThemeState>((set) => ({
-  theme: 'dark',
-  setTheme: (theme) => set({ theme }),
-  toggleTheme: () =>
-    set((state) => ({ theme: state.theme === 'dark' ? 'light' : 'dark' })),
-}))
+export const useThemeStore = create<ThemeState>()(
+  persist(
+    (set) => ({
+      theme: 'dark',
+      setTheme: (theme) => set({ theme }),
+      toggleTheme: () =>
+        set((state) => ({ theme: state.theme === 'dark' ? 'light' : 'dark' })),
+    }),
+    {
+      name: 'aurora-theme',
+      storage: createJSONStorage(() => localStorage),
+      skipHydration: true,
+    }
+  )
+)
