@@ -1,4 +1,5 @@
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'http://localhost:3000'
+const rawSiteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim()
+const siteUrl = rawSiteUrl ? (rawSiteUrl.startsWith('http') ? rawSiteUrl : `https://${rawSiteUrl}`) : 'http://localhost:3000'
 
 export const siteConfig = {
   name: 'Aurora',
