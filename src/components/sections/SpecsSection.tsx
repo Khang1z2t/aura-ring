@@ -10,11 +10,10 @@ export function SpecsSection() {
         <Reveal variant="fade" className="max-w-2xl">
           <p className="text-xs font-medium uppercase tracking-[0.22em] text-primary">Specs</p>
           <h2 className="mt-4 font-display text-3xl font-semibold tracking-[-0.02em] md:text-4xl">
-            Same sensor core, tuned through four material identities.
+            Technical detail, kept out of way.
           </h2>
-          <p className="mt-3 text-base leading-7 text-muted-foreground">
-            Aurora keeps the technical story readable: a shared baseline up top, then a tighter card
-            for each model beneath it.
+          <p className="mt-3 max-w-[34ch] text-base leading-7 text-muted-foreground">
+            Shared baseline first. Model differences after.
           </p>
         </Reveal>
 

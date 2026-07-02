@@ -13,17 +13,15 @@ export function ProductsSection() {
           <div className="max-w-2xl">
             <p className="text-xs font-medium uppercase tracking-[0.22em] text-primary">Products</p>
             <h2 className="mt-4 font-display text-3xl font-semibold tracking-[-0.03em] text-balance md:text-4xl">
-              Four finishes, one calm way to track your body.
+              Four finishes. One sensor core.
             </h2>
-            <p className="mt-3 max-w-[62ch] text-base leading-7 text-muted-foreground">
-              Each ring keeps the same biometric core, then shifts the material story to match how
-              you want it to feel on hand.
+            <p className="mt-3 max-w-[34ch] text-base leading-7 text-muted-foreground">
+              Pick mood, not feature checklist.
             </p>
           </div>
 
           <p className="max-w-sm text-sm leading-6 text-muted-foreground lg:text-right">
-            Rose titanium, platinum silver, champagne gold, and obsidian black — same engine,
-            different mood.
+            Rose titanium, platinum silver, champagne gold, obsidian black.
           </p>
         </Reveal>
 

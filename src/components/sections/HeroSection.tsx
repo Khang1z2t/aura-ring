@@ -7,6 +7,7 @@ import { useReducedMotion } from 'framer-motion'
 import gsap from 'gsap'
 
 import { ProgressiveImage } from '@/components/common/ProgressiveImage'
+import { useMediaQuery } from '@/hooks/useMediaQuery'
 
 const heroStats = [
   { value: '7 days', label: 'Battery life' },
@@ -21,6 +22,7 @@ export function HeroSection() {
   const glowRef = useRef<HTMLDivElement>(null)
   const scrollCueRef = useRef<HTMLDivElement>(null)
   const prefersReducedMotion = useReducedMotion()
+  const isMobile = useMediaQuery('(max-width: 767px)')
 
   useEffect(() => {
     const root = rootRef.current
@@ -29,7 +31,7 @@ export function HeroSection() {
     const glow = glowRef.current
     const scrollCue = scrollCueRef.current
 
-    if (!root || !content || !visual || !glow || !scrollCue || prefersReducedMotion) {
+    if (!root || !content || !visual || !glow || !scrollCue || prefersReducedMotion || isMobile) {
       return
     }
 
@@ -111,13 +113,16 @@ export function HeroSection() {
 
       ctx.revert()
     }
-  }, [prefersReducedMotion])
+  }, [prefersReducedMotion, isMobile])
 
   return (
     <section ref={rootRef} className="relative overflow-hidden px-4 py-20 md:px-8 md:py-28 lg:px-0 lg:py-0">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_40%,rgba(200,169,106,0.1)_0%,rgba(212,197,176,0.05)_42%,transparent_72%)]" />
       <div className="relative mx-auto flex min-h-screen max-w-7xl flex-col justify-center gap-12 lg:flex-row lg:items-center lg:gap-16">
-        <div ref={contentRef} className="max-w-xl lg:mx-auto lg:w-full lg:max-w-[34rem]">
+        <div
+          ref={contentRef}
+          className="max-w-xl animate-in fade-in-0 duration-300 lg:mx-auto lg:w-full lg:max-w-[34rem]"
+        >
           <div data-hero-badges className="flex flex-wrap items-center gap-3">
             <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium uppercase tracking-[0.22em] text-primary">
               New · 2026
@@ -175,11 +180,15 @@ export function HeroSection() {
           </div>
         </div>
 
-        <div ref={visualRef} data-hero-visual className="relative flex flex-1 items-center justify-center lg:w-1/2">
+        <div
+          ref={visualRef}
+          data-hero-visual
+          className="relative flex flex-1 animate-in fade-in-0 duration-300 items-center justify-center lg:w-1/2"
+        >
           <div
             ref={glowRef}
             data-hero-glow
-            className="absolute h-64 w-64 rounded-full bg-[radial-gradient(circle,rgba(255,107,53,0.24)_0%,rgba(255,179,71,0.12)_35%,transparent_72%)] blur-2xl md:h-80 md:w-80 lg:h-96 lg:w-96"
+            className="absolute h-52 w-52 rounded-full bg-[radial-gradient(circle,rgba(255,107,53,0.18)_0%,rgba(255,179,71,0.08)_35%,transparent_72%)] opacity-70 blur-xl md:h-80 md:w-80 md:bg-[radial-gradient(circle,rgba(255,107,53,0.24)_0%,rgba(255,179,71,0.12)_35%,transparent_72%)] md:opacity-100 md:blur-2xl lg:h-96 lg:w-96"
           />
           <ProgressiveImage
             src="/images/rings/aura_ring_elite.webp"

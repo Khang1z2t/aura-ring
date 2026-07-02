@@ -11,13 +11,13 @@ const themeInitScript = `
 (() => {
   try {
     const stored = window.localStorage.getItem('aurora-theme')
-    const theme = stored ? JSON.parse(stored)?.state?.theme : 'dark'
+    const theme = stored ? JSON.parse(stored)?.state?.theme : 'light'
     const isLight = theme === 'light'
     document.documentElement.classList.toggle('light', isLight)
     document.documentElement.style.colorScheme = isLight ? 'light' : 'dark'
   } catch {
-    document.documentElement.classList.remove('light')
-    document.documentElement.style.colorScheme = 'dark'
+    document.documentElement.classList.add('light')
+    document.documentElement.style.colorScheme = 'light'
   }
 })()
 `
