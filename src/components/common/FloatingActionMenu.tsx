@@ -27,6 +27,20 @@ const VIETNAMESE_SUGGESTIONS = [
 const FALLBACK_ERROR = 'Aurora Assistant is temporarily unavailable right now.'
 const THINKING_LABEL = 'Aurora Assistant is thinking...'
 
+function TypingDots() {
+  return (
+    <span className="inline-flex items-center gap-1 align-middle" aria-hidden="true">
+      {[0, 1, 2].map((dot) => (
+        <span
+          key={dot}
+          className="h-1.5 w-1.5 animate-[bounce_1s_infinite] rounded-full bg-current"
+          style={{ animationDelay: `${dot * 0.16}s` }}
+        />
+      ))}
+    </span>
+  )
+}
+
 function detectInputLanguage(message: string) {
   const normalized = message.toLowerCase()
 
@@ -164,6 +178,25 @@ export function FloatingActionMenu() {
     toggleTheme()
   }
 
+  const handleChatClose = () => {
+    setIsChatOpen(false)
+    setShouldRestoreChat(false)
+  }
+
+  const handleHoverContainerEnter = () => {
+    if (!canHover || isPinnedOpen) return
+    setIsHoverOpen(true)
+    if (shouldRestoreChat) {
+      setIsChatOpen(true)
+    }
+  }
+
+  const handleHoverContainerLeave = () => {
+    if (!canHover || isPinnedOpen) return
+    setIsHoverOpen(false)
+    setIsChatOpen(false)
+  }
+
   async function handleSend(messageText: string) {
     const trimmed = messageText.trim()
 
@@ -236,13 +269,20 @@ export function FloatingActionMenu() {
   }
 
   return (
-    <div className="pointer-events-none fixed right-4 bottom-4 z-50 flex items-end gap-3 md:right-6 md:bottom-6">
+    <div
+      className={cn(
+        'fixed right-4 bottom-4 z-50 flex items-end gap-3 md:right-6 md:bottom-6',
+        isChatOpen || isHoverOpen ? 'pointer-events-auto' : 'pointer-events-none'
+      )}
+      onMouseEnter={handleHoverContainerEnter}
+      onMouseLeave={handleHoverContainerLeave}
+    >
       <div
         className={cn(
-          'pointer-events-auto flex max-h-[min(38rem,calc(100dvh-7rem))] w-72 max-w-[calc(100vw-5.5rem)] flex-col rounded-3xl border border-border bg-card p-4 text-card-foreground shadow-2xl transition-all duration-200 md:w-96 md:max-w-md',
+          'flex max-h-[min(32rem,calc(100dvh-9rem))] flex-col overflow-hidden rounded-3xl border border-border bg-card text-card-foreground shadow-2xl transition-all duration-200 md:max-h-[min(34rem,calc(100dvh-8rem))]',
           isChatOpen
-            ? 'pointer-events-auto translate-x-0 opacity-100'
-            : 'pointer-events-none translate-x-2 opacity-0'
+            ? 'pointer-events-auto w-72 translate-x-0 p-4 opacity-100 md:w-96 md:max-w-md'
+            : 'pointer-events-none w-0 translate-x-2 p-0 opacity-0 border-transparent'
         )}
       >
         <div className="flex items-start justify-between gap-3">
@@ -250,12 +290,23 @@ export function FloatingActionMenu() {
             <p className="text-sm font-semibold">Aurora Assistant</p>
             <p className="mt-1 text-sm text-muted-foreground">{getAssistantDescription(panelLanguage)}</p>
           </div>
-          <div className="rounded-full bg-primary/10 p-2 text-primary">
-            <MessageCircle className="h-4 w-4" />
-          </div>
+          <button
+            type="button"
+            aria-label="Close chat"
+            onClick={handleChatClose}
+            className="group inline-flex rounded-full bg-primary/10 p-2 text-primary transition-colors hover:bg-primary/14 focus-visible:bg-primary/14 focus-visible:outline-none"
+          >
+            <span className="relative block h-4 w-4">
+              <MessageCircle className="absolute h-4 w-4 transition-all duration-200 group-hover:scale-75 group-hover:rotate-90 group-hover:opacity-0 group-focus-visible:scale-75 group-focus-visible:rotate-90 group-focus-visible:opacity-0" />
+              <X className="absolute h-4 w-4 scale-75 -rotate-90 opacity-0 transition-all duration-200 group-hover:scale-100 group-hover:rotate-0 group-hover:opacity-100 group-focus-visible:scale-100 group-focus-visible:rotate-0 group-focus-visible:opacity-100" />
+            </span>
+          </button>
         </div>
 
-        <div ref={messagesContainerRef} className="mt-4 flex-1 space-y-3 overflow-y-auto pr-1">
+        <div
+          ref={messagesContainerRef}
+          className="mt-4 flex-1 space-y-3 overflow-y-auto pr-1 [scrollbar-color:rgba(196,123,61,0.75)_transparent] [scrollbar-width:thin] [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-primary/70 [&::-webkit-scrollbar-track]:bg-transparent"
+        >
           {messages.map((message) => (
             <div key={message.id}>
               <div
@@ -303,7 +354,10 @@ export function FloatingActionMenu() {
 
           {isSending ? (
             <div className="max-w-[85%] rounded-2xl rounded-bl-md border border-border bg-background px-3 py-2 text-sm text-muted-foreground">
-              {getThinkingLabel(panelLanguage)}
+              <div className="flex items-center gap-2">
+                <TypingDots />
+                <span>{getThinkingLabel(panelLanguage)}</span>
+              </div>
             </div>
           ) : null}
 
@@ -339,19 +393,7 @@ export function FloatingActionMenu() {
         </form>
       </div>
 
-      <div
-        className="pointer-events-auto flex flex-col items-end gap-2"
-        onMouseEnter={() => {
-          if (!canHover || isPinnedOpen) return
-          setIsHoverOpen(true)
-          setIsChatOpen(shouldRestoreChat)
-        }}
-        onMouseLeave={() => {
-          if (!canHover || isPinnedOpen) return
-          setIsHoverOpen(false)
-          setIsChatOpen(false)
-        }}
-      >
+      <div className="pointer-events-auto flex flex-col items-end gap-2">
         <div
           className={cn(
             'flex flex-col items-end gap-2 transition-all duration-200',

@@ -112,6 +112,21 @@
 
 html {
   scroll-behavior: smooth;
+  scrollbar-color: color-mix(in srgb, var(--primary) 70%, transparent) transparent;
+  scrollbar-width: thin;
+}
+
+html::-webkit-scrollbar {
+  width: 0.5rem;
+}
+
+html::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--primary) 70%, transparent);
+  border-radius: 9999px;
+}
+
+html::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 body {
