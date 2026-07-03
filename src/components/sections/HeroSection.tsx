@@ -152,12 +152,14 @@ export function HeroSection() {
           <div data-hero-actions className="mt-8 flex flex-col gap-3 pr-2 sm:flex-row sm:items-center sm:pr-0">
             <Link
               href="/products"
+              data-track="hero-shop-rings"
               className="inline-flex h-11 items-center justify-center rounded-full bg-gradient-to-br from-ember to-amber px-6 text-sm font-medium text-white transition duration-150 hover:brightness-110"
             >
               Shop Rings
             </Link>
             <a
               href="#features"
+              data-track="hero-see-features"
               className="inline-flex h-11 items-center justify-center rounded-full border border-border-strong px-6 text-sm font-medium text-foreground transition duration-150 hover:border-primary hover:text-primary"
             >
               See Features ↓

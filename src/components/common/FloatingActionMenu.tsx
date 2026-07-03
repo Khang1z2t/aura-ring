@@ -6,6 +6,8 @@ import { ArrowUp, Menu, MessageCircle, Moon, SendHorizonal, Sun, X } from 'lucid
 
 import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { cn } from '@/lib/utils'
+import { trackScroll } from '@/lib/tracking/client'
+import { shouldTrackScrollProgress } from '@/lib/tracking/scroll'
 import { useChatStore } from '@/store/useChatStore'
 import { useThemeStore } from '@/store/useThemeStore'
 import type { ChatClientMessage, ChatRequest, ChatResponse } from '@/types/chat'
@@ -128,7 +130,21 @@ export function FloatingActionMenu() {
   const isExpanded = useMemo(() => isPinnedOpen || isHoverOpen, [isHoverOpen, isPinnedOpen])
 
   useEffect(() => {
-    const handleScroll = () => setShowBackToTop(window.scrollY > 240)
+    const trackedScroll = new Set<number>()
+
+    const handleScroll = () => {
+      const pageHeight = document.documentElement.scrollHeight - window.innerHeight
+      setShowBackToTop(window.scrollY > 240)
+
+      if (pageHeight > 0) {
+        const progress = Math.round((window.scrollY / pageHeight) * 100)
+        const norm = Math.round(progress / 25) * 25
+        if (shouldTrackScrollProgress(norm, trackedScroll)) {
+          trackedScroll.add(norm)
+          void trackScroll('page', { progress: norm })
+        }
+      }
+    }
 
     handleScroll()
     window.addEventListener('scroll', handleScroll, { passive: true })
@@ -292,6 +308,7 @@ export function FloatingActionMenu() {
           </div>
           <button
             type="button"
+            data-track="fab-chat-close"
             aria-label="Close chat"
             onClick={handleChatClose}
             className="group inline-flex rounded-full bg-primary/10 p-2 text-primary transition-colors hover:bg-primary/14 focus-visible:bg-primary/14 focus-visible:outline-none"
@@ -384,6 +401,7 @@ export function FloatingActionMenu() {
           />
           <button
             type="submit"
+            data-track="fab-chat-send"
             disabled={isSending || inputValue.trim().length === 0}
             aria-label="Send message"
             className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-primary text-primary-foreground disabled:opacity-60"
@@ -405,6 +423,7 @@ export function FloatingActionMenu() {
           {showBackToTop ? (
             <button
               type="button"
+              data-track="fab-back-to-top"
               aria-label="Back to top"
               onClick={handleBackToTop}
               className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-border bg-card text-card-foreground shadow-lg transition-colors hover:border-primary hover:text-primary"
@@ -415,6 +434,7 @@ export function FloatingActionMenu() {
 
           <button
             type="button"
+            data-track="fab-theme-toggle"
             aria-label="Toggle theme"
             onClick={handleThemeToggle}
             className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-border bg-card text-card-foreground shadow-lg transition-colors hover:border-primary hover:text-primary"
@@ -424,6 +444,7 @@ export function FloatingActionMenu() {
 
           <button
             type="button"
+            data-track="fab-chat-toggle"
             aria-label="Toggle chat"
             onClick={handleChatToggle}
             className={cn(
@@ -437,6 +458,7 @@ export function FloatingActionMenu() {
 
         <button
           type="button"
+          data-track="fab-main-toggle"
           aria-label={isExpanded ? 'Close quick actions' : 'Open quick actions'}
           aria-expanded={isExpanded}
           onClick={handleMainToggle}

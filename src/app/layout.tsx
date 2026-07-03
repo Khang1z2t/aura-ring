@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { DM_Sans, JetBrains_Mono, Sora } from 'next/font/google'
 
+import { ClickTracker } from '@/components/common/ClickTracker'
 import { PageTransition } from '@/components/common/PageTransition'
 import { ThemeProvider } from '@/components/common/ThemeProvider'
 import { siteConfig } from '@/config/site'
@@ -94,6 +95,7 @@ export default function RootLayout({
         <script>{themeInitScript}</script>
         <ThemeProvider>
           <PageTransition>{children}</PageTransition>
+          <ClickTracker />
         </ThemeProvider>
       </body>
     </html>

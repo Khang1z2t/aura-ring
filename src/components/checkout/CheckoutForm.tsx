@@ -112,6 +112,7 @@ export function CheckoutForm() {
 
       <button
         type="submit"
+        data-track="checkout-place-order"
         disabled={isSubmitting}
         className="mt-8 inline-flex h-11 w-full items-center justify-center rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-primary/50"
       >

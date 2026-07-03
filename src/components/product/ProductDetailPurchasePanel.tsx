@@ -211,6 +211,7 @@ function SizeGuideDialog({
           </div>
           <button
             type="button"
+            data-track="pdp-size-guide-close"
             aria-label="Close size guide"
             onClick={onClose}
             className="inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-foreground/[0.05] hover:text-foreground"
@@ -227,6 +228,7 @@ function SizeGuideDialog({
               <button
                 key={key}
                 type="button"
+                data-track={`pdp-size-guide-tab-${key}`}
                 onClick={() => onTabChange(key as keyof typeof sizeGuideTabs)}
                 className={cn(
                   'relative pb-2 text-sm font-medium transition-colors',
@@ -254,6 +256,7 @@ function SizeGuideDialog({
             Still unsure?{' '}
             <button
               type="button"
+              data-track="pdp-free-sizing-kit"
               onClick={onPickKit}
               className="font-medium text-primary transition-colors hover:text-primary/80"
             >
@@ -375,6 +378,7 @@ export function ProductDetailPurchasePanel({
               <button
                 key={color.name}
                 type="button"
+                data-track={`pdp-color-${slugify(color.name)}`}
                 aria-label={`Select ${color.name}`}
                 aria-pressed={isActive}
                 onClick={() => setSelectedColorName(color.name)}
@@ -401,6 +405,7 @@ export function ProductDetailPurchasePanel({
           <p className="text-xs font-medium uppercase tracking-[0.22em] text-primary">Size</p>
           <button
             type="button"
+            data-track={`pdp-size-${sizeMode}`}
             aria-label="Open size guide"
             onClick={() => setIsSizeGuideOpen(true)}
             className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-border bg-background text-muted-foreground transition-colors hover:border-primary hover:text-primary"
@@ -412,6 +417,7 @@ export function ProductDetailPurchasePanel({
         <div className="mt-4 space-y-3">
           <button
             type="button"
+            data-track="pdp-size-kit"
             aria-pressed={sizeMode === 'kit'}
             onClick={() => {
               setSizeMode('kit')
@@ -440,6 +446,7 @@ export function ProductDetailPurchasePanel({
           >
             <button
               type="button"
+              data-track="pdp-size-custom"
               aria-pressed={sizeMode === 'custom'}
               onClick={() => setSizeMode('custom')}
               className="w-full cursor-pointer text-left"
@@ -467,6 +474,7 @@ export function ProductDetailPurchasePanel({
                         <button
                           key={size.value}
                           type="button"
+                          data-track={`pdp-size-val-${size.value}`}
                           aria-pressed={isActive}
                           disabled={!size.inStock}
                           onClick={() => setSelectedSize(size.value)}
@@ -496,6 +504,7 @@ export function ProductDetailPurchasePanel({
       <button
         ref={addToCartRef}
         type="button"
+        data-track="pdp-add-to-cart"
         onClick={handleAddToCart}
         disabled={sizeMode === 'custom' && !selectedSize}
         className="mt-8 inline-flex h-12 w-full items-center justify-center rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-primary/50"
@@ -537,6 +546,7 @@ export function ProductDetailPurchasePanel({
               </div>
               <button
                 type="button"
+                data-track="pdp-sticky-add-to-cart"
                 onClick={handleAddToCart}
                 disabled={sizeMode === 'custom' && !selectedSize}
                 className="inline-flex h-10 shrink-0 items-center justify-center rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-primary/50"

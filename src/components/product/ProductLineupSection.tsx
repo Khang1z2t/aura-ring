@@ -86,6 +86,7 @@ export function ProductLineupSection({ product }: ProductLineupSectionProps) {
               <div className="mt-4 flex items-center gap-2 lg:hidden">
                 <button
                   type="button"
+                  data-track={`lineup-left-${product.slug}`}
                   aria-label={`Scroll ${product.name} colors left`}
                   onClick={() => scrollCards('left')}
                   disabled={!canScrollLeft}
@@ -95,6 +96,7 @@ export function ProductLineupSection({ product }: ProductLineupSectionProps) {
                 </button>
                 <button
                   type="button"
+                  data-track={`lineup-right-${product.slug}`}
                   aria-label={`Scroll ${product.name} colors right`}
                   onClick={() => scrollCards('right')}
                   disabled={!canScrollRight}
@@ -110,6 +112,7 @@ export function ProductLineupSection({ product }: ProductLineupSectionProps) {
             <div className="hidden shrink-0 items-center gap-2 lg:flex lg:pt-1">
               <button
                 type="button"
+                data-track={`lineup-desktop-left-${product.slug}`}
                 aria-label={`Scroll ${product.name} colors left`}
                 onClick={() => scrollCards('left')}
                 disabled={!canScrollLeft}
@@ -120,6 +123,7 @@ export function ProductLineupSection({ product }: ProductLineupSectionProps) {
               <button
                 type="button"
                 aria-label={`Scroll ${product.name} colors right`}
+                data-track={`lineup-desktop-right-${product.slug}`}
                 onClick={() => scrollCards('right')}
                 disabled={!canScrollRight}
                 className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-border bg-card text-card-foreground transition-colors hover:border-border-strong hover:bg-card-hover disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:border-border disabled:hover:bg-card focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"

@@ -51,6 +51,7 @@ export function CartSummary({
         ) : (
           <Link
             href={ctaHref}
+            data-track="cart-checkout"
             className="mt-6 inline-flex h-11 w-full items-center justify-center rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
             {ctaLabel}
@@ -59,6 +60,7 @@ export function CartSummary({
 
         <Link
           href={secondaryHref}
+          data-track="cart-continue-shopping"
           className="mt-3 block text-center text-sm text-muted-foreground transition-colors hover:text-foreground"
         >
           {secondaryLabel}

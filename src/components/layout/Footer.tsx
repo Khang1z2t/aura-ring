@@ -17,11 +17,11 @@ export function Footer() {
           <div className="flex flex-col gap-3 md:items-end">
             <nav className="flex flex-wrap gap-4 text-sm text-muted-foreground">
               {siteConfig.nav.map((item) => (
-                <a key={item.href} href={item.href} className="transition-colors hover:text-foreground">
+                <a key={item.href} href={item.href} data-track={`footer-${item.label.toLowerCase().replace(/\s+/g, '-')}`} className="transition-colors hover:text-foreground">
                   {item.label}
                 </a>
               ))}
-              <Link href="/products" className="transition-colors hover:text-foreground">
+              <Link href="/products" data-track="footer-shop-all" className="transition-colors hover:text-foreground">
                 Shop all
               </Link>
             </nav>
@@ -44,6 +44,7 @@ export function Footer() {
                   href="https://github.com/khang1z2t"
                   target="_blank"
                   rel="noreferrer"
+                  data-track="footer-github"
                   className="font-medium text-foreground transition-colors hover:text-primary"
                 >
                   @yunok

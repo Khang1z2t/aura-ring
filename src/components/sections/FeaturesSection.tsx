@@ -106,6 +106,7 @@ export function FeaturesSection() {
                     <button
                       key={shot.src}
                       type="button"
+                      data-track={`features-gallery-${index}`}
                       aria-label={`Show image ${index + 1}`}
                       aria-current={isActive}
                       onClick={() => setActiveShot(index)}

@@ -20,6 +20,7 @@ export function ProductColorCard({ product, color }: ProductColorCardProps) {
   return (
     <Link
       href={href}
+      data-track={`color-card-${slugify(color.name)}`}
       aria-label={`View ${product.name} in ${color.name}`}
       className="group block rounded-[2rem] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
     >

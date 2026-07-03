@@ -14,7 +14,7 @@ export function Navbar() {
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md lg:overflow-visible">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 md:px-8 lg:px-0">
-        <Link href="/" className="font-display text-lg font-semibold tracking-tight">
+        <Link href="/" data-track="nav-logo" className="font-display text-lg font-semibold tracking-tight">
           Aurora
         </Link>
 
@@ -24,6 +24,7 @@ export function Navbar() {
               <a
                 key={item.href}
                 href={item.href}
+                data-track={`nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
                 className="text-sm text-muted-foreground transition-colors hover:text-foreground"
               >
                 {item.label}
@@ -32,6 +33,7 @@ export function Navbar() {
               <Link
                 key={item.href}
                 href={item.href}
+                data-track={`nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
                 className="text-sm text-muted-foreground transition-colors hover:text-foreground"
               >
                 {item.label}
@@ -45,6 +47,7 @@ export function Navbar() {
 
           <Link
             href="/products"
+            data-track="nav-buy-now"
             className="inline-flex h-10 items-center justify-center rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
             Buy now
@@ -56,6 +59,7 @@ export function Navbar() {
 
           <button
             type="button"
+            data-track="nav-mobile-menu"
             aria-label={isMobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
             aria-expanded={isMobileMenuOpen}
             onClick={() => setIsMobileMenuOpen((open) => !open)}
@@ -89,6 +93,7 @@ export function Navbar() {
                 <Link
                   key={item.href}
                   href={item.href}
+                  data-track={`nav-mobile-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="rounded-2xl px-3 py-3 text-sm text-foreground transition-colors hover:bg-card"
                 >
@@ -97,6 +102,7 @@ export function Navbar() {
               ))}
               <Link
                 href="/products"
+                data-track="nav-mobile-buy-now"
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="mt-2 inline-flex h-11 items-center justify-center rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
               >

@@ -4,3 +4,5 @@ export interface TrackingEvent {
   timestamp: number
   metadata?: Record<string, unknown>
 }
+
+export type TrackingEventType = TrackingEvent['type']
